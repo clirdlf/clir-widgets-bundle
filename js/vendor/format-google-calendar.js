@@ -57,7 +57,7 @@ var formatGoogleCalendar = (function() {
             for (i in result) {
                 // console.table(result[i]);
                 if (typeof result[i].end == 'undefined') {
-                    console.log('hit it');
+                    // console.log('hit it');
                 } else {
                     if (isPast(result[i].end.date || result[i].end.dateTime)) {
                         if (pastCounter < settings.pastTopN) {
@@ -123,7 +123,7 @@ var formatGoogleCalendar = (function() {
             dateFormatted = '';
 
         if (typeof result.end == 'undefined') {
-            console.log('eat it');
+            // console.log('eat it');
         } else {
             dateStart = getDateInfo(result.start.date || result.start.dateTime);
             dateEnd = getDateInfo(result.end.date || result.end.dateTime);
