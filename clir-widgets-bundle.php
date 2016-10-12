@@ -16,6 +16,7 @@ define('CLIR_WIDGETS_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('CLIR_WIDGETS_PLUGIN_URL',  plugin_dir_url(__FILE__));
 
 require_once( CLIR_WIDGETS_PLUGIN_PATH . 'lib/calendar-widget.php');
+require_once( CLIR_WIDGETS_PLUGIN_PATH . 'lib/social-icons-list.php'); // todo: rename this
 
 // Block direct requests
 if (!defined('ABSPATH')) {
@@ -27,4 +28,5 @@ add_action( 'widgets_init', 'clir_load_widgets' );
 function clir_load_widgets()
 {
    register_widget('Community_Calendar_Widget');
+   register_widget('Social_Media_Links');
 }
