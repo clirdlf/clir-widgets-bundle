@@ -10,8 +10,8 @@
     "type": "git",
     "url": "git+https://github.com/waynegraham/clir-widgets-bundle.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Councile on Libraries and Information Resources",
+  "license": "gpl-3",
   "bugs": {
     "url": "https://github.com/waynegraham/clir-widgets-bundle/issues"
   },

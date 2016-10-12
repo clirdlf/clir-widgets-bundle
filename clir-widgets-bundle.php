@@ -9,7 +9,7 @@
  * Version: 0.0.1
  * Author URI: https://www.clir.org
  * License: GPL3
- * License URI: https://www.gnu.org/licenses/gpl-3.0.txt.
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.txt
  */
 
 define('CLIR_WIDGETS_PLUGIN_PATH', plugin_dir_path(__FILE__));
