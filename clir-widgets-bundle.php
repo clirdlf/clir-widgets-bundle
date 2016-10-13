@@ -15,18 +15,22 @@
 define('CLIR_WIDGETS_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('CLIR_WIDGETS_PLUGIN_URL',  plugin_dir_url(__FILE__));
 
-require_once( CLIR_WIDGETS_PLUGIN_PATH . 'lib/calendar-widget.php');
-require_once( CLIR_WIDGETS_PLUGIN_PATH . 'lib/social-icons-list.php'); // todo: rename this
+require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/calendar-widget.php';
+require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/social-media-links.php';
 
 // Block direct requests
 if (!defined('ABSPATH')) {
-     die(-1);
+    die(-1);
 }
 
-add_action( 'widgets_init', 'clir_load_widgets' );
+add_action('widgets_init', 'clir_load_widgets');
 
+/**
+ * Load widgets
+ * @return null
+ */
 function clir_load_widgets()
 {
-   register_widget('Community_Calendar_Widget');
-   register_widget('Social_Media_Links');
+    register_widget('Community_Calendar_Widget');
+    register_widget('Social_Media_Links');
 }
