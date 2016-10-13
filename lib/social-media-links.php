@@ -87,8 +87,6 @@
       */
      public function form($instance)
      {
-         var_dump($instance);
-
          if (isset($instance['title'])) {
              $title = $instance[ 'title' ];
          } else {
