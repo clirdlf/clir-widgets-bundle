@@ -17,6 +17,8 @@ define('CLIR_WIDGETS_PLUGIN_URL',  plugin_dir_url(__FILE__));
 
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/calendar-widget.php';
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/social-media-links.php';
+require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/filters.php';
+require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/shortcodes.php';
 
 // Block direct requests
 if (!defined('ABSPATH')) {
