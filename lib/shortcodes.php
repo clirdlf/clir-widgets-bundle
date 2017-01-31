@@ -20,6 +20,76 @@ function clir_clearfix()
 }
 
 /**
+ * Shortcode for displaying report convers
+ *
+ * @see
+ *
+ * @return String div with n reports
+ */
+function clir_reports_view( $attr )
+{
+    $a = shortcode_atts(
+      array(
+        // 'parent' => 240,
+        'count' => '1',
+      ), $atts);
+
+      $args = array(
+      	'sort_order' => 'desc',
+      	'sort_column' => 'post_date',
+      	'hierarchical' => 1,
+      	'exclude' => '',
+      	'include' => '',
+      	'meta_key' => '',
+      	'meta_value' => '',
+      	'authors' => '',
+      	'child_of' => 0,
+      	'parent' => 240,
+      	'exclude_tree' => '',
+      	'number' => '5',
+      	'offset' => 0,
+      	'post_type' => 'page',
+      	'post_status' => 'publish'
+      );
+
+      $pages = get_pages($args);
+
+      $output = '<div class="row">';
+
+      foreach($pages as $page) {
+        $output .= '<div class="col-sm-6 col-md-4">';
+        $output .= '<div class="magee-animated animated fadeInLeft" data-animationduration="0.9" data-animationtype="fadeInLeft" data-imageanimation="no" style="visibility: visible; animation-duration: 0.9s;">';
+        $output .= '<div class="img-frame rounded">';
+        $output .= '<div class="img-box figcaption-middle text-center fade-in">';
+
+        $image = get_attached_media('application/pdf', $page->ID);
+        $pdf_id = key($image);
+        if ( $thumbnail_id = get_post_thumbnail_id( $pdf_id ) ) {
+            $output .= '<a class="pdf-link image-link" href="'.wp_get_attachment_url( $pdf_id ).'" title="'.esc_attr( get_the_title( $pdf_id ) ).'">'.wp_get_attachment_image ( $thumbnail_id, 'medium' ).'</a>';
+          }
+
+        $output .= '<a href="' . get_page_link($page->ID). '">';
+        // $output .= '<div class="img-overlay dark">';
+        // $output .= '<div class="img-overlay-container">';
+        // $output .= '<div class="img-overlay-content">';
+        $output .= '<h3>'. $page->post_title .'</h3>';
+        // $output .= '<i class="fa fa-link" style="visibility: visible;"></i>
+        //   </div>
+        // </div>';
+
+        $output .= '</a>';
+        $output .= '</div>'; // img-box
+        $output .= '</div>'; // img-frame
+        $output .= '</div>'; // animated
+        $output .= '</div>'; // col-sm-6 col-md-4
+      }
+
+      $output .= '</div>'; // row
+
+      return $output;
+}
+
+/**
  * For embedding the DLF Community Calendar (managed in Google Calendar)
  *
  * @return String embed code for the community calendar. Can be overridden for
@@ -45,6 +115,7 @@ function community_calendar( $atts )
   $url .= '&amp;color=' . urlencode($a['color']) . '&amp;ctz=' . urlencode($a['ctz']);
 
   $iframe = "<iframe src='{$url}' style='{$a['style']}' width='{$a['width']}' height='{$a['height']}' frameborder='{$a['frameborder']}' scrolling='{$a['scrolling']}'></iframe>";
+  $iframe .= "<p style='font-size: smaller;'>Maintained by the <a href='https://www.diglib.org/opportunities/calendar/'>Digital Library Federation</a></p>";
   return $iframe;
 }
 
@@ -176,6 +247,7 @@ function register_shortcodes()
 {
   add_shortcode('clearboth', 'clir_clearfix');
   add_shortcode('community_calendar', 'community_calendar');
+  add_shortcode('recent_publications', 'clir_reports_view');
   // add_shortcode('image_frame', 'clir_clearfix');
 }
 
