@@ -22,7 +22,9 @@ function clir_clearfix()
 /**
  * Shortcode for displaying report convers
  *
- * @see
+ * @see https://codex.wordpress.org/Function_Reference/get_pages
+ *
+ * @params Array $attr Array of options for get_pages
  *
  * @return String div with n reports
  */
@@ -30,13 +32,15 @@ function clir_reports_view( $attr )
 {
     $a = shortcode_atts(
       array(
-        // 'parent' => 240,
-        'count' => '1',
+        'parent'      => 240,
+        'count'       => '6',
+        'sort_order'  => 'desc',
+        'sort_column' => 'post_date'
       ), $atts);
 
       $args = array(
-      	'sort_order' => 'desc',
-      	'sort_column' => 'post_date',
+      	'sort_order' => $a['sort_order'],
+      	'sort_column' => $a['sort_column'],
       	'hierarchical' => 1,
       	'exclude' => '',
       	'include' => '',
@@ -44,9 +48,9 @@ function clir_reports_view( $attr )
       	'meta_value' => '',
       	'authors' => '',
       	'child_of' => 0,
-      	'parent' => 240,
+      	'parent' => $a['parent'],
       	'exclude_tree' => '',
-      	'number' => '5',
+      	'number' => $a['count'],
       	'offset' => 0,
       	'post_type' => 'page',
       	'post_status' => 'publish'
@@ -56,9 +60,11 @@ function clir_reports_view( $attr )
 
       $output = '<div class="row">';
 
+      $fadeActions = ['fadeInLeft', 'fadeInDown', 'fadeInRight'];
+
       foreach($pages as $page) {
         $output .= '<div class="col-sm-6 col-md-4">';
-        $output .= '<div class="magee-animated animated fadeInLeft" data-animationduration="0.9" data-animationtype="fadeInLeft" data-imageanimation="no" style="visibility: visible; animation-duration: 0.9s;">';
+        $output .= '<div class="magee-animated animated '. $fadeActions[array_rand($fadeActions, 1)] . '" data-animationduration="0.9" data-animationtype="fadeInLeft" data-imageanimation="no" style="visibility: visible; animation-duration: 0.9s;">';
         $output .= '<div class="img-frame rounded">';
         $output .= '<div class="img-box figcaption-middle text-center fade-in">';
 
