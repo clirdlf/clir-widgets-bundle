@@ -34,9 +34,9 @@ function clir_reports_view( $attr )
   $a = shortcode_atts(
     array(
       'parent'      => 240,
-      'count'       => '6',
+      'count'       => '',
       'sort_order'  => 'desc',
-      'sort_column' => 'post_date'
+      'sort_column' => 'post_date',
     ), $attr);
 
     $args = array(
@@ -65,7 +65,7 @@ function clir_reports_view( $attr )
 
     foreach($pages as $page) {
       $output .= '<div class="col-sm-6 col-md-4">';
-      $output .= '<div class="magee-animated animated '. $fadeActions[array_rand($fadeActions, 1)] . '" data-animationduration="0.9" data-animationtype="fadeInLeft" data-imageanimation="no" style="visibility: visible; animation-duration: 0.9s;">';
+      $output .= '<div class="report-cover magee-animated animated '. $fadeActions[array_rand($fadeActions, 1)] . '" data-animationduration="0.9" data-animationtype="fadeInLeft" data-imageanimation="no" style="visibility: visible; animation-duration: 0.9s;">';
       $output .= '<div class="img-frame rounded">';
       $output .= '<div class="img-box figcaption-middle text-center fade-in">';
 
