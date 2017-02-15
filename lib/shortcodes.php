@@ -20,6 +20,24 @@ function clir_clearfix()
 }
 
 /**
+ * Hide email from Spam Bots using a Shortcode
+ *
+ * @param array  $atts    Shortocde attributes (not used)
+ * @param string $content The shortcode content (should be an email address)
+ *
+ * @return string An obfuscated email address
+ */
+ function hide_email( $atts, $content = null)
+ {
+   // guard for accidental wrap
+   if(! is_email($content)) {
+     return;
+   }
+
+   return '<a href="mailto:"' . antispambot($content) . '">' . antispambot($content) . '</a>';
+ }
+
+/**
 * Shortcode for displaying report convers
 *
 * @see https://codex.wordpress.org/Function_Reference/get_pages
@@ -259,7 +277,7 @@ function register_shortcodes()
   add_shortcode('clearboth', 'clir_clearfix');
   add_shortcode('community_calendar', 'community_calendar');
   add_shortcode('recent_publications', 'clir_reports_view');
-  // add_shortcode('image_frame', 'clir_clearfix');
+  add_shortcode('email', 'hide_email');
 }
 
 add_action('init', 'register_shortcodes');
