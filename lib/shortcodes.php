@@ -94,7 +94,8 @@ function clir_reports_view( $attr )
       $pdf_id = reset($images);
 
       if ( $thumbnail_id = get_post_thumbnail_id( $pdf_id ) ) {
-        $output .= '<a class="pdf-link image-link" href="'. wp_get_attachment_url( $pdf_id ).'" title="'.esc_attr( get_the_title( $pdf_id ) ).'">'.wp_get_attachment_image ( $thumbnail_id, 'medium' ).'</a>';
+        $output .= '<a class="pdf-link image-link" href="' . get_page_link($page->ID) . '" title="'.esc_attr( get_the_title( $pdf_id ) ).'">'.wp_get_attachment_image ( $thumbnail_id, 'medium' ).'</a>';
+        // $output .= '<a class="pdf-link image-link" href="'. wp_get_attachment_url( $pdf_id ).'" title="'.esc_attr( get_the_title( $pdf_id ) ).'">'.wp_get_attachment_image ( $thumbnail_id, 'medium' ).'</a>';
       }
 
       $output .= '<a href="' . get_page_link($page->ID). '">';
