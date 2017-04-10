@@ -12,7 +12,7 @@ function clir_category_link( $title_tag, $original_atts )
 
   // rebuild output? http://www.billerickson.net/code/remove-link-title-display-posts-shortcode/
   // $output = '<' . $inner_wrapper . ' class="' . implode( ' ', $class ) . '">' . $image . $title . $date . $author . $excerpt . $content . '</' . $inner_wrapper . '>';
-  
+
   // echo '<pre>';
   // echo ($title_tag);
   // echo '</pre>';
@@ -21,4 +21,4 @@ function clir_category_link( $title_tag, $original_atts )
 
 }
 
-add_filter('display_posts_shortcode_title_tag', 'clir_category_link');
+// add_filter('display_posts_shortcode_title_tag', 'clir_category_link');
