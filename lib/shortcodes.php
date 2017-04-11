@@ -184,7 +184,7 @@ function dlf_post( $atts )
   ), $atts);
 
   $category_id = get_cat_id($a['category']);
-  $category_link = get_category_link($category_id);
+  $category_link = esc_url(get_category_link($category_id));
 
   $args = array(
     'numberposts' => 1,
@@ -201,61 +201,68 @@ function dlf_post( $atts )
 
   // $post = get_post($post_id);
 
-  $thumb = 'https://www.placecage.com/270/270';
+  $thumb = 'https://www.placecage.com/218/218';
   if ( has_post_thumbnail() ) {
-  	$thumb = the_post_thumbnail(array(270,270)); // @see https://developer.wordpress.org/reference/functions/the_post_thumbnail/
+  	$thumb = the_post_thumbnail(array(218,218)); // @see https://developer.wordpress.org/reference/functions/the_post_thumbnail/
   }
   setup_postdata($post);
 
+  $permalink  = get_permalink($post["ID"]);
+  $esc_title  = esc_attr($post['post_title']);
+  $post_day   = get_the_date('d', $post_id);
+  $post_month = get_the_date('M Y', $post_id);
+  $post_title = get_the_title($post['ID']);
+  $excerpt    = wp_trim_words($post['post_content']) . ' <a href="'. get_permalink($post["ID"]) . '">READ MORE</a>';
 
-  $output = '<div class="col-md-6">';
-  $output .= '<article id="post-' . $post_id . '" class="post" itemtype="http://schema.org/BlogPosting">';
-    $output .= '<div class="rowtight">';
-      $output .= '<div class="imagehoverclass" itemprop="image" itemtype="https://schema.org/ImageObject">';
-        $output .= '<a href="'. get_permalink($post["ID"]) . '"><img alt="'. esc_attr($post['post_title']) .'" src="'. $thumb .'" /></a>';
-      $output .= '</div>';
-      $output .= '<div class="postcontent">';
-        $output .= '<div class="postmeta updated color_gray">';
-          $output .= '<div class="postdate bg-lightgray headerfont" itemprop="datePublished">';
-            $output .= '<span class="postday">' . get_the_date('d', $post_id) . '</span> ' . get_the_date('M Y', $post_id);
-          $output .= '</div>';
-          $output .= '<header class="home_blog_title">';
-            $output .= '<a href="'. get_permalink($post["ID"]) . '">';
-              $output .= '<h4 class="entry-title" itemprop="name headline">' . get_the_title($post['ID']) . '</h4>';
-            $output .= '</a>';
-            $output .= '<div class="subhead color_gray">';
-              $output .= '<span class="category"><i class="fa fa-folder-open"></i>';
-                $output .= '<a href="'.esc_url( $category_link ) .'" title="'. $a['category'] .'">' . $a['category'] . '</a>';
-              $output .= '</span>';
-            $output .= '</div>';
-          $output .= '</header>';
-          $output .= '<div class="entry-content">';
-            $output .= wp_trim_words($post['post_content']);
-          $output .= '</div>';
-          $output .= '<footer>';
-            $output .= '<meta itemscope="" itemprop="mainEntityOfPage" itemtype="https://schema.org/WebPage" itemid="'. $post['guid'] . '">';
-            $output .= '<meta itemprop="dateModified" content="'. $post['post_modified_gmt'] .'" />';
-            $output .= '<div itemprop="publisher" itemtype="https://schema.org/Organization">';
-              $output .= '<div itemprop="logo" itemscope="" itemtype="https://schema.org/ImageObject">';
-                $output .= '<meta itemprop="url" content="https://www.diglib.org/wp-content/uploads/2013/07/DLFrev1BL_notag_200.png">';
-                $output .= '<meta itemprop="width" content="200">';
-                $output .= '<meta itemprop="height" content="84">';
-              $output .= '</div>';
-              $output .= '<meta itemprop="name" content="'. $post['post_title'] .'">';
-            $output .= '</div>';
-          $output .= '</footer>';
-        $output .= '</div>';
-      $output .= '</div>';
-    $output .= '</div>';
-  $output .= '</article>';
+  $output = <<<EOT
+  <div class="col-md-6">
+    <article id="post-{$post_id}" class="post post-{$post_id} type-post status-publish format-standard has-post-thumbnail hentry category-photo" itemtype="http://schema.org/BlogPosting">
+      <div class="rowtight">
+        <div class="imagehoverclass col-md-5 col-sm-12" itemprop="image" itemtype="https://schema.org/ImageObject">
+          <a href="{$permalink}">
+            <img alt="{$esc_title}" src="{$thumb}" />
+            <meta itemprop="url" content="{$thumb}">
+						<meta itemprop="width" content="270">
+						<meta itemprop="height" content="270"> </a>
+          </a>
+        </div>
+        <div class="col-md-7 col-sm-12 postcontent">
+          <div class="postmeta updated color_gray">
+            <div class="postdate bg-lightgray headerfont" itemprop="datePublished">
+              <span class="postday">{$post_day}</span> {$post_month}
+            </div>
+          </div>
+          <header class="home_blog_title">
+						<a href="{$permalink}">
+							<h4 class="entry-title" itemprop="name headline">{$post_title}</h4>
+						</a>
+						<div class="subhead color_gray">
+							<span class="category"><i class="fa fa-folder-open"></i>
+                <a href="{$category_link}" title="{$a['category']}">{$a['category']}</a>
+              </span>
+						</div>
+					</header>
+          <div class="entry-content">
+            <p>{$excerpt}</p>
+          </div>
+          <footer>
+            <meta itemscope="" itemprop="mainEntityOfPage" itemtype="https://schema.org/WebPage" itemid="{$permalink}">
+                    <meta itemprop="dateModified" content="{$post['post_modified_gmt']}">
+                    <div itemprop="publisher" itemscope="" itemtype="https://schema.org/Organization">
+                        <div itemprop="logo" itemscope="" itemtype="https://schema.org/ImageObject">
+                            <meta itemprop="url" content="https://www.diglib.org/wp-content/uploads/2013/07/DLFrev1BL_notag_200.png">
+                            <meta itemprop="width" content="275">
+                            <meta itemprop="height" content="84">
+                        </div>
+                        <meta itemprop="name" content="{$post_title}">
+                    </div>
+          </footer>
+        </div>
+      </div>
+    </article>
+  </div>
+EOT;
 
-
-
-  $output .= "</div>";
-
-  // $output .= debug($post);
-
-  // wp_reset_postdata();
   return $output;
 }
 
