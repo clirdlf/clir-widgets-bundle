@@ -171,16 +171,31 @@ function clir_reports_view( $attr )
     return $iframe;
 }
 
-function random_image( $dir )
+// TODO move to utilities
+function clean_category( $category )
 {
+  $cat = explode(' ', $category);
+  $str = $cat[0];
+  $str = strtolower($str);
+  return preg_replace('/[^A-Za-z0-9\-]/', '', $str);
+}
 
+// TODO move to utilities
+function random_image( $category )
+{
+  $cc = clean_category($category);
+  $path = CLIR_WIDGETS_PLUGIN_PATH . 'lib/images/dlf/' . $cc . '*.{jpg,jpeg,png,gif}';
+  $images = glob( $path, GLOB_BRACE );
+  $image =  $images[array_rand($images)];
+  return plugin_dir_url(__FILE__) . 'images/dlf/' . basename($image);
+  // return WP_PLUGIN_URL . '/lib/images/dlf/' . basename($image);
 }
 
 function dlf_post( $atts )
 {
   //TODO: get an array of random images to get thumbs for
   $a = shortcode_atts(array(
-    'category' => 'blog',
+    'category' => 'Blog',
   ), $atts);
 
   $category_id = get_cat_id($a['category']);
@@ -200,10 +215,10 @@ function dlf_post( $atts )
   $post = $posts[0];
 
   // $post = get_post($post_id);
-
-  $thumb = 'https://www.placecage.com/218/218';
+  // $thumb = 'https://www.placecage.com/270/270';
+  $thumb = random_image($a['category']);
   if ( has_post_thumbnail() ) {
-  	$thumb = the_post_thumbnail(array(218,218)); // @see https://developer.wordpress.org/reference/functions/the_post_thumbnail/
+  	$thumb = the_post_thumbnail(array(270,270)); // @see https://developer.wordpress.org/reference/functions/the_post_thumbnail/
   }
   setup_postdata($post);
 
@@ -212,7 +227,7 @@ function dlf_post( $atts )
   $post_day   = get_the_date('d', $post_id);
   $post_month = get_the_date('M Y', $post_id);
   $post_title = get_the_title($post['ID']);
-  $excerpt    = wp_trim_words($post['post_content']) . ' <a href="'. get_permalink($post["ID"]) . '">READ MORE</a>';
+  $excerpt    = wp_trim_words(strip_shortcodes($post['post_content'])) . ' <a href="'. get_permalink($post["ID"]) . '">READ MORE</a>';
 
   $output = <<<EOT
   <div class="col-md-6">
@@ -266,6 +281,7 @@ EOT;
   return $output;
 }
 
+// TODO: move to utilities
 function debug($content)
 {
   $output = "<pre>";
