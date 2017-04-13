@@ -57,6 +57,34 @@ function clir_clearfix()
  }
 
 /**
+ * Display DLF menu items
+ *
+ * @param array $atts Shortcode attributes
+ *
+ * @return string HTML content
+ */
+ function dlf_menu_entry ( $attr )
+ {
+   $a = shortcode_atts(
+     array(
+       'link'  => '/',
+       'icon'  => 'fa fa-ban',
+       'title' => ''
+     ), $attr);
+
+     $output = <<<EOT
+<div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 home-iconmenu">
+  <a href="{$a['link']}"> <i class="{$a['icon']}"></i>
+    <h4>{$a['title']}</h4>
+  </a>
+</div>
+EOT;
+
+    return $output;
+
+ }
+
+/**
 * Shortcode for displaying report convers
 *
 * @see https://codex.wordpress.org/Function_Reference/get_pages
@@ -171,25 +199,7 @@ function clir_reports_view( $attr )
     return $iframe;
 }
 
-// TODO move to utilities
-function clean_category( $category )
-{
-  $cat = explode(' ', $category);
-  $str = $cat[0];
-  $str = strtolower($str);
-  return preg_replace('/[^A-Za-z0-9\-]/', '', $str);
-}
 
-// TODO move to utilities
-function random_image( $category )
-{
-  $cc = clean_category($category);
-  $path = CLIR_WIDGETS_PLUGIN_PATH . 'lib/images/dlf/' . $cc . '*.{jpg,jpeg,png,gif}';
-  $images = glob( $path, GLOB_BRACE );
-  $image =  $images[array_rand($images)];
-  return plugin_dir_url(__FILE__) . 'images/dlf/' . basename($image);
-  // return WP_PLUGIN_URL . '/lib/images/dlf/' . basename($image);
-}
 
 function dlf_post( $atts )
 {
@@ -298,6 +308,7 @@ function register_shortcodes()
   add_shortcode('recent_publications', 'clir_reports_view');
   add_shortcode('email', 'hide_email');
   add_shortcode('dlf_post', 'dlf_post');
+  add_shortcode('menu_entry', 'dlf_menu_entry');
 }
 
 add_action('init', 'register_shortcodes');
@@ -336,4 +347,24 @@ add_action('init', 'register_shortcodes');
      }
 
      return $output;
+ }
+
+ // TODO move to utilities
+ function clean_category( $category )
+ {
+   $cat = explode(' ', $category);
+   $str = $cat[0];
+   $str = strtolower($str);
+   return preg_replace('/[^A-Za-z0-9\-]/', '', $str);
+ }
+
+ // TODO move to utilities
+ function random_image( $category )
+ {
+   $cc = clean_category($category);
+   $path = CLIR_WIDGETS_PLUGIN_PATH . 'lib/images/dlf/' . $cc . '*.{jpg,jpeg,png,gif}';
+   $images = glob( $path, GLOB_BRACE );
+   $image =  $images[array_rand($images)];
+   return plugin_dir_url(__FILE__) . 'images/dlf/' . basename($image);
+   // return WP_PLUGIN_URL . '/lib/images/dlf/' . basename($image);
  }
