@@ -206,6 +206,7 @@ function dlf_post( $atts )
   //TODO: get an array of random images to get thumbs for
   $a = shortcode_atts(array(
     'category' => 'Blog',
+    'length'   => 55
   ), $atts);
 
   $category_id = get_cat_id($a['category']);
@@ -228,7 +229,7 @@ function dlf_post( $atts )
   // $thumb = 'https://www.placecage.com/270/270';
   $thumb = random_image($a['category']);
   if ( has_post_thumbnail() ) {
-  	$thumb = the_post_thumbnail(array(270,270)); // @see https://developer.wordpress.org/reference/functions/the_post_thumbnail/
+  	$thumb = the_post_thumbnail(array(270, 270)); // @see https://developer.wordpress.org/reference/functions/the_post_thumbnail/
   }
   setup_postdata($post);
 
@@ -237,7 +238,7 @@ function dlf_post( $atts )
   $post_day   = get_the_date('d', $post_id);
   $post_month = get_the_date('M Y', $post_id);
   $post_title = get_the_title($post['ID']);
-  $excerpt    = wp_trim_words(strip_shortcodes($post['post_content'])) . ' <a href="'. get_permalink($post["ID"]) . '">READ MORE</a>';
+  $excerpt    = strip_shortcodes(wp_trim_words($post['post_content'])) . ' <a href="'. get_permalink($post["ID"]) . '">READ MORE</a>';
 
   $output = <<<EOT
   <div class="col-md-6">
@@ -291,16 +292,6 @@ EOT;
   return $output;
 }
 
-// TODO: move to utilities
-function debug($content)
-{
-  $output = "<pre>";
-  $output .= var_dump($content);
-  $output .= "</pre>";
-
-  return $output;
-}
-
 function register_shortcodes()
 {
   add_shortcode('clearboth', 'clir_clearfix');
@@ -347,6 +338,16 @@ add_action('init', 'register_shortcodes');
      }
 
      return $output;
+ }
+
+ // TODO: move to utilities
+ function debug($content)
+ {
+   $output = "<pre>";
+   $output .= var_dump($content);
+   $output .= "</pre>";
+
+   return $output;
  }
 
  // TODO move to utilities
