@@ -238,7 +238,9 @@ function dlf_post( $atts )
   $post_day   = get_the_date('d', $post_id);
   $post_month = get_the_date('M Y', $post_id);
   $post_title = get_the_title($post['ID']);
-  $excerpt    = strip_shortcodes(wp_trim_words($post['post_content'])) . ' <a href="'. get_permalink($post["ID"]) . '">READ MORE</a>';
+  $excerpt_trim = strip_shortcodes($post['post_content']);
+  $excerpt    = wp_trim_words($excerpt_trim, $a['length']) . ' <a href="'. get_permalink($post["ID"]) . '">READ MORE</a>';
+
 
   $output = <<<EOT
   <div class="col-md-6">
