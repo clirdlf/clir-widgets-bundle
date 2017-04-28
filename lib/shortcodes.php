@@ -34,8 +34,6 @@ function clir_clearfix()
      $output = "";
 
      return $output;
-
-
  }
 
 /**
@@ -54,6 +52,34 @@ function clir_clearfix()
    }
 
    return '<a href="mailto:"' . antispambot($content) . '">' . antispambot($content) . '</a>';
+ }
+
+ function map( $attr )
+ {
+
+   $a = shortcode_atts(
+     array(
+       'data'  => 'https://clirdlf.github.io/maps/data.js',
+       'layer' => ''
+     ), $attr);
+
+     $data = array(
+       'layer' => $a['layer']
+     );
+
+   wp_enqueue_style('leaflet', 'https://unpkg.com/leaflet@1.0.3/dist/leaflet.css');
+   wp_enqueue_style('MarkerCluster', 'https://unpkg.com/leaflet.markercluster@1.0.3/dist/MarkerCluster.css');
+   wp_enqueue_style('MarkerCluster-Default', 'https://unpkg.com/leaflet.markercluster@1.0.3/dist/MarkerCluster.Default.css');
+
+   wp_enqueue_script('leaflet', 'https://unpkg.com/leaflet@1.0.3/dist/leaflet.js');
+   wp_enqueue_script('map-data', $a['data']);
+   wp_enqueue_script('markercluster', 'https://unpkg.com/leaflet.markercluster@1.0.3/dist/leaflet.markercluster.js');
+   wp_enqueue_script('oms', 'http://jawj.github.io/OverlappingMarkerSpiderfier-Leaflet/bin/oms.min.js'); // TODO: Don't hotlink this
+   wp_enqueue_script('map', plugins_url('/js/map.js', dirname(__FILE__)), array('leaflet'));
+   wp_localize_script('map', 'php_vars', $data);
+   //https://cdn.rawgit.com/clirdlf/logo-fonts/master/clir-font/stylesheet.min.css
+   $output = '<div id="clir_map" style="width:100%;height:600px;"></div>';
+   return $output;
  }
 
 /**
@@ -239,27 +265,17 @@ function dlf_post( $atts )
   $post_month = get_the_date('M Y', $post_id);
   $post_title = get_the_title($post['ID']);
   $excerpt_trim = strip_shortcodes($post['post_content']);
-  $excerpt    = wp_trim_words($excerpt_trim, $a['length']) . ' <a href="'. get_permalink($post["ID"]) . '">READ MORE</a>';
+  // $excerpt    = wp_trim_words($excerpt_trim, $a['length']) . ' <a href="'. get_permalink($post["ID"]) . '">READ MORE</a>';
+  $excerpt = '';
 
 
   $output = <<<EOT
-  <div class="col-md-6">
+  <div class="col-md-3">
     <article id="post-{$post_id}" class="post post-{$post_id} type-post status-publish format-standard has-post-thumbnail hentry category-photo" itemtype="http://schema.org/BlogPosting">
       <div class="rowtight">
-        <div class="imagehoverclass col-md-5 col-sm-12" itemprop="image" itemtype="https://schema.org/ImageObject">
-          <a href="{$permalink}">
-            <img alt="{$esc_title}" src="{$thumb}" />
-            <meta itemprop="url" content="{$thumb}">
-						<meta itemprop="width" content="270">
-						<meta itemprop="height" content="270"> </a>
-          </a>
-        </div>
-        <div class="col-md-7 col-sm-12 postcontent">
-          <div class="postmeta updated color_gray">
-            <div class="postdate bg-lightgray headerfont" itemprop="datePublished">
-              <span class="postday">{$post_day}</span> {$post_month}
-            </div>
-          </div>
+
+        <div class="col-md-12 col-sm-12 postcontent">
+
           <header class="home_blog_title">
 						<a href="{$permalink}">
 							<h4 class="entry-title" itemprop="name headline">{$post_title}</h4>
@@ -275,15 +291,15 @@ function dlf_post( $atts )
           </div>
           <footer>
             <meta itemscope="" itemprop="mainEntityOfPage" itemtype="https://schema.org/WebPage" itemid="{$permalink}">
-                    <meta itemprop="dateModified" content="{$post['post_modified_gmt']}">
-                    <div itemprop="publisher" itemscope="" itemtype="https://schema.org/Organization">
-                        <div itemprop="logo" itemscope="" itemtype="https://schema.org/ImageObject">
-                            <meta itemprop="url" content="https://www.diglib.org/wp-content/uploads/2013/07/DLFrev1BL_notag_200.png">
-                            <meta itemprop="width" content="275">
-                            <meta itemprop="height" content="84">
-                        </div>
-                        <meta itemprop="name" content="{$post_title}">
-                    </div>
+            <meta itemprop="dateModified" content="{$post['post_modified_gmt']}">
+            <div itemprop="publisher" itemscope="" itemtype="https://schema.org/Organization">
+                <div itemprop="logo" itemscope="" itemtype="https://schema.org/ImageObject">
+                    <meta itemprop="url" content="https://www.diglib.org/wp-content/uploads/2013/07/DLFrev1BL_notag_200.png">
+                    <meta itemprop="width" content="275">
+                    <meta itemprop="height" content="84">
+                </div>
+                <meta itemprop="name" content="{$post_title}">
+            </div>
           </footer>
         </div>
       </div>
@@ -300,6 +316,7 @@ function register_shortcodes()
   add_shortcode('community_calendar', 'community_calendar');
   add_shortcode('recent_publications', 'clir_reports_view');
   add_shortcode('email', 'hide_email');
+  add_shortcode('clir_map', 'map');
   add_shortcode('dlf_post', 'dlf_post');
   add_shortcode('menu_entry', 'dlf_menu_entry');
 }
