@@ -37,7 +37,7 @@
 
   // console.log(php_vars.layer);
 
-  var geoJsonLayer = L.geoJson(dlf, { // TODO: pass layer properly
+  var geoJsonLayer = L.geoJson(dlf, { // TODO: pass layer properly @see https://github.com/waynegraham/clir-widgets-bundle/issues/3
     onEachFeature: onEachFeature,
     pointToLayer: function(feature, latlng) {
       return L.marker(latlng);
