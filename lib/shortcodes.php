@@ -72,7 +72,7 @@ function clir_clearfix()
    wp_enqueue_style('MarkerCluster-Default', 'https://unpkg.com/leaflet.markercluster@1.0.3/dist/MarkerCluster.Default.css');
 
    wp_enqueue_script('leaflet', 'https://unpkg.com/leaflet@1.0.3/dist/leaflet.js');
-   wp_enqueue_script('map-data', $a['data']);
+   wp_enqueue_script('map-data', 'https://clirdlf.github.io/maps/data.js');
    wp_enqueue_script('markercluster', 'https://unpkg.com/leaflet.markercluster@1.0.3/dist/leaflet.markercluster.js');
    wp_enqueue_script('oms', 'http://jawj.github.io/OverlappingMarkerSpiderfier-Leaflet/bin/oms.min.js'); // TODO: Don't hotlink this
    wp_enqueue_script('map', plugins_url('/js/map.js', dirname(__FILE__)), array('leaflet'));

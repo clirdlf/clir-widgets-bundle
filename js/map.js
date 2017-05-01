@@ -14,8 +14,9 @@
 
   function onEachFeature(feature, layer) {
     var popupContent = '';
-    if (feature.properties && feature.properties.popupContent) {
-      popupContent += feature.properties.popupContent;
+    if (feature.properties && feature.properties.organization) {
+      popupContent += '<h2>' + feature.properties.organization + '</h2>';
+      popupContent += '<p>' + feature.properties.City + ', ' + feature.properties.StateTerri+'</p>';
     }
 
     layer.bindPopup(popupContent);
