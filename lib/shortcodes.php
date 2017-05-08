@@ -232,7 +232,8 @@ function dlf_post( $atts )
   //TODO: get an array of random images to get thumbs for
   $a = shortcode_atts(array(
     'category' => 'Blog',
-    'length'   => 55
+    'length'   => 55,
+    'class'    => 'col-md-6'
   ), $atts);
 
   $category_id = get_cat_id($a['category']);
@@ -257,6 +258,7 @@ function dlf_post( $atts )
   if ( has_post_thumbnail() ) {
   	$thumb = the_post_thumbnail(array(270, 270)); // @see https://developer.wordpress.org/reference/functions/the_post_thumbnail/
   }
+
   setup_postdata($post);
 
   $permalink  = get_permalink($post["ID"]);
@@ -268,44 +270,54 @@ function dlf_post( $atts )
   // $excerpt    = wp_trim_words($excerpt_trim, $a['length']) . ' <a href="'. get_permalink($post["ID"]) . '">READ MORE</a>';
   $excerpt = '';
 
-
   $output = <<<EOT
-  <div class="col-md-3">
-    <article id="post-{$post_id}" class="post post-{$post_id} type-post status-publish format-standard has-post-thumbnail hentry category-photo" itemtype="http://schema.org/BlogPosting">
-      <div class="rowtight">
-
-        <div class="col-md-12 col-sm-12 postcontent">
-
-          <header class="home_blog_title">
-						<a href="{$permalink}">
-							<h4 class="entry-title" itemprop="name headline">{$post_title}</h4>
-						</a>
-						<div class="subhead color_gray">
-							<span class="category"><i class="fa fa-folder-open"></i>
-                <a href="{$category_link}" title="{$a['category']}">{$a['category']}</a>
-              </span>
-						</div>
-					</header>
-          <div class="entry-content">
-            <p>{$excerpt}</p>
-          </div>
-          <footer>
-            <meta itemscope="" itemprop="mainEntityOfPage" itemtype="https://schema.org/WebPage" itemid="{$permalink}">
-            <meta itemprop="dateModified" content="{$post['post_modified_gmt']}">
-            <div itemprop="publisher" itemscope="" itemtype="https://schema.org/Organization">
-                <div itemprop="logo" itemscope="" itemtype="https://schema.org/ImageObject">
-                    <meta itemprop="url" content="https://www.diglib.org/wp-content/uploads/2013/07/DLFrev1BL_notag_200.png">
-                    <meta itemprop="width" content="275">
-                    <meta itemprop="height" content="84">
-                </div>
-                <meta itemprop="name" content="{$post_title}">
-            </div>
-          </footer>
-        </div>
-      </div>
-    </article>
+  <div class="{$a['class']}">
+    <a href="{$permalink}" title="{$post['post_title']}" class="related-post" style="background-image: url({$thumb});">
+      <span class="related-post-title">{$post['post_title']}</span>
+    </a>
   </div>
 EOT;
+
+
+
+
+//   $output = <<<EOT
+//   <div class="{$a['class']}">
+//     <article id="post-{$post_id}" class="post post-{$post_id} type-post status-publish format-standard has-post-thumbnail hentry category-photo" itemtype="http://schema.org/BlogPosting">
+//       <div class="rowtight">
+//
+//         <div class="col-md-12 col-sm-12 postcontent">
+//
+//           <header class="home_blog_title">
+// 						<a href="{$permalink}">
+// 							<h4 class="entry-title" itemprop="name headline">{$post_title}</h4>
+// 						</a>
+// 						<div class="subhead color_gray">
+// 							<span class="category"><i class="fa fa-folder-open"></i>
+//                 <a href="{$category_link}" title="{$a['category']}">{$a['category']}</a>
+//               </span>
+// 						</div>
+// 					</header>
+//           <div class="entry-content">
+//             <p>{$excerpt}</p>
+//           </div>
+//           <footer>
+//             <meta itemscope="" itemprop="mainEntityOfPage" itemtype="https://schema.org/WebPage" itemid="{$permalink}">
+//             <meta itemprop="dateModified" content="{$post['post_modified_gmt']}">
+//             <div itemprop="publisher" itemscope="" itemtype="https://schema.org/Organization">
+//                 <div itemprop="logo" itemscope="" itemtype="https://schema.org/ImageObject">
+//                     <meta itemprop="url" content="https://www.diglib.org/wp-content/uploads/2013/07/DLFrev1BL_notag_200.png">
+//                     <meta itemprop="width" content="275">
+//                     <meta itemprop="height" content="84">
+//                 </div>
+//                 <meta itemprop="name" content="{$post_title}">
+//             </div>
+//           </footer>
+//         </div>
+//       </div>
+//     </article>
+//   </div>
+// EOT;
 
   return $output;
 }
