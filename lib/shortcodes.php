@@ -100,7 +100,7 @@ function clir_clearfix()
 
      $output = <<<EOT
 <div class="col-lg-3 col-md-3 col-sm-6 col-xs-6 home-iconmenu">
-  <a href="{$a['link']}"> <i class="{$a['icon']}"></i>
+  <a href="{$a['link']}"> <i class="{$a['icon']}" aria-hidden="true"></i>
     <h4>{$a['title']}</h4>
   </a>
 </div>
@@ -225,11 +225,78 @@ function clir_reports_view( $attr )
     return $iframe;
 }
 
+function category_lookup($categories)
+{
+  $category_ids = array();
+  foreach($categories as $category) {
+    $category_id = "-" . get_cat_id($category);
+    array_push($category_ids, $category_id);
+  }
+  return implode(",", $category_ids);
+}
 
+function dlf_excerpt($limit = 50, $source = null){
+    if($source == "content" ? ($excerpt = get_the_content()) : ($excerpt = get_the_excerpt()));
+    $excerpt = preg_replace(" (\[.*?\])",'',$excerpt);
+    $excerpt = strip_shortcodes($excerpt);
+    $excerpt = strip_tags($excerpt);
+    $excerpt = substr($excerpt, 0, $limit);
+    $excerpt = substr($excerpt, 0, strripos($excerpt, " "));
+    $excerpt = trim(preg_replace( '/\s+/', ' ', $excerpt));
+    $excerpt = $excerpt.'... <a href="' . get_permalink($post->ID) . '">more <i class="fa fa-angle-double-right" aria-hidden="true"></i></a>';
+    return $excerpt;
+}
+
+function dlf_news( $atts )
+{
+  $a = shortcode_atts(array(
+    'exclude_categories' => '',
+    'length'   => 55,
+    'count'    => 3,
+    'class'    => 'col-md-6'
+  ), $atts);
+
+  $categories = explode(',', $a['exclude_categories']);
+  $category_ids = category_lookup($categories);
+
+  $args = array(
+     'cat' => $category_ids,
+     'posts_per_page' => $a['count']
+   );
+
+  $query = new WP_Query( $args );
+
+  if( $query->have_posts() ) {
+    // echo '<div class="col-md-12">';
+    $output = '<div class="top-posts">';
+
+	while ( $query->have_posts() ) {
+		$query->the_post();
+		$output .= '<h3><a href="' . get_post_permalink() . '">' . get_the_title() . '</a></h3>';
+    $output .= '<div class="post-meta">';
+    $output .= '<ul class="entry-meta">';
+    $output .= '<li class="entry-date"><i class="fa fa-calendar" aria-hidden="true"></i> ' . get_the_date() .'</li>';
+    $output .= '<li class="entry-date"><i class="fa fa-user" aria-hidden="true"></i> ' . get_the_author() .'</li>';
+    $output .= '<li class="entry-date"><i class="fa fa-file-o" aria-hidden="true"></i> ' . get_the_category_list(', ') .'</li>';
+    $output .= '</ul>';
+    $output .= '</div>';
+    $output .= '<p class="excerpt">' . dlf_excerpt(255) . '</p>';
+	}
+
+  $output .= '<div class="text-center"><a href="' . get_permalink( get_option( 'page_for_posts' ) ) . '" class="btn btn-dlf">More Posts</a></div>';
+	echo '</div>';
+	/* Restore original Post Data */
+	wp_reset_postdata();
+
+  return $output;
+
+} else {}
+
+  return $output;
+}
 
 function dlf_post( $atts )
 {
-  //TODO: get an array of random images to get thumbs for
   $a = shortcode_atts(array(
     'category' => 'Blog',
     'length'   => 55,
@@ -330,6 +397,7 @@ function register_shortcodes()
   add_shortcode('email', 'hide_email');
   add_shortcode('clir_map', 'map');
   add_shortcode('dlf_post', 'dlf_post');
+  add_shortcode('dlf_news', 'dlf_news');
   add_shortcode('menu_entry', 'dlf_menu_entry');
 }
 

@@ -32,7 +32,7 @@ function custom_excerpt_length( $length )
   return 30;
 }
 
-// add_filter( 'excerpt_length', 'custom_excerpt_length', 999 );
+add_filter( 'excerpt_length', 'custom_excerpt_length', 999 );
 
 /**
  * Filter the "read more" excerpt string link to the post.
@@ -47,6 +47,6 @@ function wpdocs_excerpt_more( $more ) {
         __( 'Read More', 'textdomain' )
     );
 }
-// add_filter( 'excerpt_more', 'wpdocs_excerpt_more' );
+add_filter( 'excerpt_more', 'wpdocs_excerpt_more' );
 
 // add_filter('display_posts_shortcode_title_tag', 'clir_category_link');
