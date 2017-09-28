@@ -171,8 +171,6 @@ function clir_reports_view( $attr )
         // $output .= '<a class="pdf-link image-link" href="'. wp_get_attachment_url( $pdf_id ).'" title="'.esc_attr( get_the_title( $pdf_id ) ).'">'.wp_get_attachment_image ( $thumbnail_id, 'medium' ).'</a>';
       }
 
-
-
       $output .= '<a href="' . get_page_link($page->ID). '">';
       // $output .= '<div class="img-overlay dark">';
       // $output .= '<div class="img-overlay-container">';
@@ -288,8 +286,6 @@ function dlf_news( $atts )
 	/* Restore original Post Data */
 	wp_reset_postdata();
 
-  return $output;
-
 } else {}
 
   return $output;
@@ -328,11 +324,11 @@ function dlf_post( $atts )
 
   setup_postdata($post);
 
-  $permalink  = get_permalink($post["ID"]);
-  $esc_title  = esc_attr($post['post_title']);
-  $post_day   = get_the_date('d', $post_id);
-  $post_month = get_the_date('M Y', $post_id);
-  $post_title = get_the_title($post['ID']);
+  $permalink    = get_permalink($post["ID"]);
+  $esc_title    = esc_attr($post['post_title']);
+  $post_day     = get_the_date('d', $post_id);
+  $post_month   = get_the_date('M Y', $post_id);
+  $post_title   = get_the_title($post['ID']);
   $excerpt_trim = strip_shortcodes($post['post_content']);
   // $excerpt    = wp_trim_words($excerpt_trim, $a['length']) . ' <a href="'. get_permalink($post["ID"]) . '">READ MORE</a>';
   $excerpt = '';
@@ -344,47 +340,6 @@ function dlf_post( $atts )
     </a>
   </div>
 EOT;
-
-
-
-
-//   $output = <<<EOT
-//   <div class="{$a['class']}">
-//     <article id="post-{$post_id}" class="post post-{$post_id} type-post status-publish format-standard has-post-thumbnail hentry category-photo" itemtype="http://schema.org/BlogPosting">
-//       <div class="rowtight">
-//
-//         <div class="col-md-12 col-sm-12 postcontent">
-//
-//           <header class="home_blog_title">
-// 						<a href="{$permalink}">
-// 							<h4 class="entry-title" itemprop="name headline">{$post_title}</h4>
-// 						</a>
-// 						<div class="subhead color_gray">
-// 							<span class="category"><i class="fa fa-folder-open"></i>
-//                 <a href="{$category_link}" title="{$a['category']}">{$a['category']}</a>
-//               </span>
-// 						</div>
-// 					</header>
-//           <div class="entry-content">
-//             <p>{$excerpt}</p>
-//           </div>
-//           <footer>
-//             <meta itemscope="" itemprop="mainEntityOfPage" itemtype="https://schema.org/WebPage" itemid="{$permalink}">
-//             <meta itemprop="dateModified" content="{$post['post_modified_gmt']}">
-//             <div itemprop="publisher" itemscope="" itemtype="https://schema.org/Organization">
-//                 <div itemprop="logo" itemscope="" itemtype="https://schema.org/ImageObject">
-//                     <meta itemprop="url" content="https://www.diglib.org/wp-content/uploads/2013/07/DLFrev1BL_notag_200.png">
-//                     <meta itemprop="width" content="275">
-//                     <meta itemprop="height" content="84">
-//                 </div>
-//                 <meta itemprop="name" content="{$post_title}">
-//             </div>
-//           </footer>
-//         </div>
-//       </div>
-//     </article>
-//   </div>
-// EOT;
 
   return $output;
 }
@@ -424,19 +379,19 @@ add_action('init', 'register_shortcodes');
 
      return $excerpts;
 
-     if (mb_strlen($excerpt) > $charlength) {
-         $subex = mb_substr($excerpt, 0, $charlength - 5);
-         $exwords = explode(' ', $subex);
-         $excut = - (mb_strlen($exwords[ count($exwords) - 1 ]));
-         if ($excut < 0) {
-             $output = mb_substr($subex, 0, $excut);
-         } else {
-             $output = $subex;
-         }
-         echo '[...]';
-     }
-
-     return $output;
+    //  if (mb_strlen($excerpt) > $charlength) {
+    //      $subex = mb_substr($excerpt, 0, $charlength - 5);
+    //      $exwords = explode(' ', $subex);
+    //      $excut = - (mb_strlen($exwords[ count($exwords) - 1 ]));
+    //      if ($excut < 0) {
+    //          $output = mb_substr($subex, 0, $excut);
+    //      } else {
+    //          $output = $subex;
+    //      }
+    //      echo '[...]';
+    //  }
+     //
+    //  return $output;
  }
 
  // TODO: move to utilities
