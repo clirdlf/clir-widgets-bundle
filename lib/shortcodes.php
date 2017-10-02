@@ -114,33 +114,81 @@ EOT;
      return $output;
  }
 
- function clir_publications($attr)
+ function get_thumb($publication)
+ {
+     $output = '';
+     $attachments = get_attached_media('application/pdf', $publication->ID);
+     $pdf = reset($attachments);
+     $thumb_id = get_post_thumbnail_id($pdf);
+
+     if ($thumbnail_id = get_post_thumbnail_id($pdf->ID)) {
+         $output .= '<a class="pdf-link image-link" href="' . get_page_link($publication->ID) . '" title="'.esc_attr(get_the_title($pdf)).'">'.wp_get_attachment_image($thumbnail_id, array(155,200), false, array("class" => "")).'</a>';
+     }
+     $output .= '<a href="' . get_page_link($publication->ID). '">';
+
+     return $output;
+ }
+
+ function display_publication($publication)
+ {
+     $attachments = get_attached_media('application/pdf', $publication->ID);
+     $thumb = get_thumb($publication);
+     $page_link = get_page_link($publication->ID);
+
+     $output = <<< EOT
+<div class="col-sm-6 col-md-4">
+   <div class="report-cover">
+      <div class="img-frame rounded">
+         <div class="img-box figcaption-middle text-center">
+            {$thumb}
+            <a href="{$page_link}">
+               <h3>{$publication->post_title}</h3>
+            </a>
+         </div>
+      </div>
+   </div>
+</div>
+EOT;
+
+     return $output;
+ }
+
+ function clir_random_publications($attr)
  {
      $a = shortcode_atts(
      array(
-       'title'  => '',
+       'count'  => '1',
+       'parent' => '240'
      ),
        $attr
    );
 
-     $output = '<div class="col-sm-6 col-md-4">';
-     $output .= '<div class="report-cover">';
-     $output .= '<div class="img-frame rounded">';
-     $output .= '<div class="img-box figcaption-middle text-center">';
+     $query = new WP_Query(
+       array(
+         'orderby' => 'rand',
+         'posts_per_page' => $a['count'],
+         'post_type' =>   'page',
+         'post_parent' => $a['parent']
+       )
+     );
+
+     reset($query);
+     $output = display_publication( $query->posts[0] );
+
+     return $output;
+ }
+
+ function clir_publications($attr)
+ {
+     $a = shortcode_atts(
+        array(
+          'title'  => '',
+       ),
+       $attr
+    );
 
      $publication = get_page_by_title($a['title']);
-     $attachments = get_attached_media('application/pdf', $publication->ID);
-     $pdf = reset($attachments); // just get the first element
-     if ($thumbnail_id = get_post_thumbnail_id($pdf->ID)) {
-         $output .= '<a class="pdf-link image-link" href="' . get_page_link($publication->ID) . '" title="'.esc_attr(get_the_title($pdf)).'">'.wp_get_attachment_image($thumbnail_id, 'medium', false, array("class" => '')).'</a>';
-     }
-     $output .= '<a href="' . get_page_link($publication->ID). '">';
-     $output .= '<h3>' . $publication->post_title . '</h3>';
-     $output .= '</a>';
-     $output .= '</div>'; // img-box
-     $output .= '</div>'; // img-frame
-     $output .= '</div>'; // animated
-     $output .= '</div>'; // col-sm-6 col-
+     $output = display_publication( $publication );
      return $output;
  }
 
@@ -186,36 +234,12 @@ function clir_recent_reports($attr)
 
     $pages = get_pages($args);
 
-   //  $output = '<div class="row">';
-
-
-    foreach ($pages as $page) {
-        $output .= '<div class="col-sm-6 col-md-4">';
-        $output .= '<div class="report-cover">';
-        $output .= '<div class="img-frame rounded">';
-        $output .= '<div class="img-box figcaption-middle text-center">';
-
-        $images = get_attached_media('application/pdf', $page->ID);
-
-        $pdf_id = reset($images);
-
-        if ($thumbnail_id = get_post_thumbnail_id($pdf_id)) {
-            $output .= '<a class="pdf-link image-link" href="' . get_page_link($page->ID) . '" title="'.esc_attr(get_the_title($pdf_id)).'">'.wp_get_attachment_image($thumbnail_id, array('155', '200'), false, array("class" => "")).'</a>';
-        }
-
-        $output .= '<a href="' . get_page_link($page->ID). '">';
-        $output .= '<h3>'. $page->post_title .'</h3>';
-
-        $output .= '</a>';
-        $output .= '</div>'; // img-box
-      $output .= '</div>'; // img-frame
-      $output .= '</div>'; // animated
-      $output .= '</div>'; // col-sm-6 col-md-4
+    foreach ($pages as $publication) {
+      $output .= display_publication( $publication );
     }
 
-   //  $output .= '</div>'; // row
-
     return $output;
+
 }
 
   /**
@@ -377,6 +401,7 @@ function register_shortcodes()
     add_shortcode('community_calendar', 'community_calendar');
     add_shortcode('recent_publications', 'clir_recent_reports');
     add_shortcode('publication', 'clir_publications');
+    add_shortcode('random_publication', 'clir_random_publications');
     add_shortcode('email', 'hide_email');
     add_shortcode('clir_map', 'map');
     add_shortcode('dlf_post', 'dlf_post');
@@ -385,69 +410,3 @@ function register_shortcodes()
 }
 
 add_action('init', 'register_shortcodes');
-
-// Utility Functions TODO refactor to utilities.php
-/**
- * Create an excerpt of an arbitrary length for a given Post
- *
- * @see https://codex.wordpress.org/Function_Reference/get_the_excerpt
- *
- * @param Post $post Post to generate excerpt from
- * @param int  $length Length of the excerpt
- *
- * @return String Excerpt of length $length
- */
- function the_excerpt_max_charlength($post, $charlength)
- {
-     $excerpts = get_the_excerpt(get_post($post['ID']));
-     $excerpt = $excerpts[0];
-
-     $output = "";
-     $charlength++;
-
-     return $excerpts;
-
-     //  if (mb_strlen($excerpt) > $charlength) {
-    //      $subex = mb_substr($excerpt, 0, $charlength - 5);
-    //      $exwords = explode(' ', $subex);
-    //      $excut = - (mb_strlen($exwords[ count($exwords) - 1 ]));
-    //      if ($excut < 0) {
-    //          $output = mb_substr($subex, 0, $excut);
-    //      } else {
-    //          $output = $subex;
-    //      }
-    //      echo '[...]';
-    //  }
-     //
-    //  return $output;
- }
-
- // TODO: move to utilities
- function debug($content)
- {
-     $output = "<pre>";
-     $output .= var_dump($content);
-     $output .= "</pre>";
-
-     return $output;
- }
-
- // TODO move to utilities
- function clean_category($category)
- {
-     $cat = explode(' ', $category);
-     $str = $cat[0];
-     $str = strtolower($str);
-     return preg_replace('/[^A-Za-z0-9\-]/', '', $str);
- }
-
- // TODO move to utilities
- function random_image($category)
- {
-     $cc = clean_category($category);
-     $path = CLIR_WIDGETS_PLUGIN_PATH . 'lib/images/dlf/' . $cc . '*.{jpg,jpeg,png,gif}';
-     $images = glob($path, GLOB_BRACE);
-     $image =  $images[array_rand($images)];
-     return plugin_dir_url(__FILE__) . 'images/dlf/' . basename($image);
-     // return WP_PLUGIN_URL . '/lib/images/dlf/' . basename($image);
- }
