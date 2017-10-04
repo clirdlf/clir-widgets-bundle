@@ -55,7 +55,7 @@ function clir_clearfix()
          return;
      }
 
-     return '<a href="mailto:"' . antispambot($content) . '">' . antispambot($content) . '</a>';
+     return '<a href="mailto:' . antispambot($content) . '">' . antispambot($content) . '</a>';
  }
 
  function map($attr)
