@@ -131,6 +131,13 @@ EOT;
      return $output;
  }
 
+/**
+ * Template for displaying a publication partial in the theme
+ *
+ * @param WordPress::Post $publication Publication to display
+ *
+ * @return String HTML to render
+ */
  function display_publication($publication)
  {
      $attachments = get_attached_media('application/pdf', $publication->ID);
@@ -155,6 +162,13 @@ EOT;
      return $output;
  }
 
+/**
+ * Shortcode to retrieve n random publications
+ *
+ * @param Array $attr shortcode_atts
+ *
+ * @return String HTML to render
+ */
  function clir_random_publications($attr)
  {
      $a = shortcode_atts(
@@ -180,6 +194,15 @@ EOT;
      return $output;
  }
 
+ /**
+  * Shortcode for displaying report convers
+  *
+  * @see https://codex.wordpress.org/Function_Reference/get_page_by_title
+  *
+  * @params Array $attr Array of options for get_pages
+  *
+  * @return String div with n reports
+  */
  function clir_publications($attr)
  {
      $a = shortcode_atts(
@@ -195,15 +218,15 @@ EOT;
  }
 
 /**
-* Shortcode for displaying report convers
-*
-* @see https://codex.wordpress.org/Function_Reference/get_pages
-* @see https://wordpress.org/plugins/pdf-image-generator/developers/
-*
-* @params Array $attr Array of options for get_pages
-*
-* @return String div with n reports
-*/
+ * Shortcode for displaying report convers
+ *
+ * @see https://codex.wordpress.org/Function_Reference/get_pages
+ * @see https://wordpress.org/plugins/pdf-image-generator/developers/
+ *
+ * @params Array $attr Array of options for get_pages
+ *
+ * @return String div with n reports
+ */
 function clir_recent_reports($attr)
 {
     $a = shortcode_atts(
@@ -298,6 +321,76 @@ function dlf_excerpt($limit = 50, $source = null)
     return $excerpt;
 }
 
+function clir_last_featured($attr)
+{
+   $a = shortcode_atts(
+      array(
+         'category' => 'featured',
+         'length' => 55,
+         'count'  => 3,
+      ), $attr
+   );
+
+   // @see https://codex.wordpress.org/Function_Reference/get_cat_ID
+   $cat = get_cat_ID($a['category']);
+   $args  = array(
+      'posts_per_page' => $a['count'],
+      'cat' => $cat
+   );
+
+   $columns = 12 / $a['count'];
+
+   $featured_content = new WP_Query($args);
+   $output = '<div class="row">';
+
+   if($featured_content->have_posts()){
+      while($featured_content->have_posts()){
+         $post = $featured_content->the_post();
+         // $output .= '<div class="col-md-'. $columns . '">';
+            $thumb = get_the_post_thumbnail_url($post, array(350, 233));
+
+            if(!$thumb) {
+               $thumb = 'http://placehold.it/350x233';
+            }
+
+            $permalink = get_the_permalink();
+            $title = get_the_title();
+
+            $output .= <<<EOT
+ <div class="col-md-{$columns}">
+   <a href="{$permalink}" title="{$title}" class="related-post" style="background-image: url({$thumb});">
+     <span class="related-post-title">{$title}</span>
+   </a>
+ </div>
+EOT;
+            // $output .= '<a title="'. get_the_title() .'" href="'. get_the_permalink() .'" class="related-post" style="background-image: url('. $image . ');">';
+            // $output .= '<span class="related-post-title">' . get_the_title() .'</span>';
+            // $output .= '</a>';
+            // $output .= '<p>'. dlf_excerpt(255) . '</p>';
+         // $output .= '</div>';
+
+      }
+   }
+
+   $output .= '</div>';
+
+   return $output;
+}
+
+/**
+ * Retrieve category IDs from a string of categories
+ *
+ * @param String $categories Comma separated list of categories
+ *
+ * @return Array Ids of the categories
+ */
+function get_category_ids($categories)
+{
+   $categories = explode(',', $categories);
+   return category_lookup($categories);
+}
+
+
 function dlf_news($atts)
 {
     $a = shortcode_atts(array(
@@ -318,7 +411,6 @@ function dlf_news($atts)
     $query = new WP_Query($args);
 
     if ($query->have_posts()) {
-        // echo '<div class="col-md-12">';
         $output = '<div class="top-posts">';
 
         while ($query->have_posts()) {
@@ -368,8 +460,6 @@ function dlf_post($atts)
     $post_id = $posts[0]['ID'];
     $post = $posts[0];
 
-    // $post = get_post($post_id);
-    // $thumb = 'https://www.placecage.com/270/270';
     $thumb = random_image($a['category']);
     if (has_post_thumbnail()) {
         $thumb = the_post_thumbnail(array(270, 270)); // @see https://developer.wordpress.org/reference/functions/the_post_thumbnail/
@@ -399,16 +489,17 @@ EOT;
 
 function register_shortcodes()
 {
-    add_shortcode('clearboth', 'clir_clearfix');
-    add_shortcode('community_calendar', 'community_calendar');
+    add_shortcode('clearboth',           'clir_clearfix');
+    add_shortcode('community_calendar',  'community_calendar');
     add_shortcode('recent_publications', 'clir_recent_reports');
-    add_shortcode('publication', 'clir_publications');
-    add_shortcode('random_publication', 'clir_random_publications');
-    add_shortcode('email', 'hide_email');
-    add_shortcode('clir_map', 'map');
-    add_shortcode('dlf_post', 'dlf_post');
-    add_shortcode('dlf_news', 'dlf_news');
-    add_shortcode('menu_entry', 'dlf_menu_entry');
+    add_shortcode('publication',         'clir_publications');
+    add_shortcode('random_publication',  'clir_random_publications');
+    add_shortcode('last_featured',       'clir_last_featured');
+    add_shortcode('email',               'hide_email');
+    add_shortcode('clir_map',            'map');
+    add_shortcode('dlf_post',            'dlf_post');
+    add_shortcode('dlf_news',            'dlf_news');
+    add_shortcode('menu_entry',          'dlf_menu_entry');
 }
 
 add_action('init', 'register_shortcodes');
