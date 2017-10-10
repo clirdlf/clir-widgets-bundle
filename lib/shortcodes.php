@@ -124,7 +124,7 @@ EOT;
      $thumb_id = get_post_thumbnail_id($pdf);
 
      if ($thumbnail_id = get_post_thumbnail_id($pdf->ID)) {
-         $output .= '<a class="pdf-link image-link" href="' . get_page_link($publication->ID) . '" title="'.esc_attr(get_the_title($pdf)).'">'.wp_get_attachment_image($thumbnail_id, array(155,200), false, array("class" => "")).'</a>';
+         $output .= '<a class="pdf-link image-link" href="' . get_page_link($publication->ID) . '" title="'.esc_attr(get_the_title($pdf)).'">'.wp_get_attachment_image($thumbnail_id, 'medium', false, array("class" => "")).'</a>';
      }
      $output .= '<a href="' . get_page_link($publication->ID). '">';
 
