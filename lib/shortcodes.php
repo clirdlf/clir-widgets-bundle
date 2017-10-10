@@ -120,7 +120,7 @@ EOT;
  {
      $output = '';
      $attachments = get_attached_media('application/pdf', $publication->ID);
-     $pdf = reset($attachments);
+     $pdf = end($attachments);
      $thumb_id = get_post_thumbnail_id($pdf);
 
      if ($thumbnail_id = get_post_thumbnail_id($pdf->ID)) {
@@ -129,6 +129,18 @@ EOT;
      $output .= '<a href="' . get_page_link($publication->ID). '">';
 
      return $output;
+ }
+
+ function clir_featured_program($attr)
+ {
+    $a = shortcode_atts(
+      array(
+         'program' => 'Program Name',
+         'blurb'   => 'Program blurb',
+         'slug'    => '',
+         'image'   => ''
+       ), $attr
+    );
  }
 
 /**
@@ -188,7 +200,7 @@ EOT;
        )
      );
 
-     reset($query);
+     end($query);
      $output = display_publication( $query->posts[0] );
 
      return $output;
@@ -495,6 +507,7 @@ function register_shortcodes()
     add_shortcode('publication',         'clir_publications');
     add_shortcode('random_publication',  'clir_random_publications');
     add_shortcode('last_featured',       'clir_last_featured');
+    add_shortcode('featured_program',    'clir_featured_program');
     add_shortcode('email',               'hide_email');
     add_shortcode('clir_map',            'map');
     add_shortcode('dlf_post',            'dlf_post');
