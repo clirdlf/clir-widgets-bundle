@@ -150,20 +150,24 @@ EOT;
  *
  * @return String HTML to render
  */
- function display_publication($publication)
+ function display_publication($publication, $title_flag = false)
  {
      $attachments = get_attached_media('application/pdf', $publication->ID);
      $thumb = get_thumb($publication);
      $page_link = get_page_link($publication->ID);
+     $title = '';
+     if($title_flag == true ){
+       $title = "<h3>". $publication->post_title . "</h3>";
+     }
 
      $output = <<< EOT
 <div class="col-sm-6 col-md-4">
    <div class="report-cover">
       <div class="img-frame rounded">
          <div class="img-box figcaption-middle text-center">
-            {$thumb}
             <a href="{$page_link}">
-               <h3>{$publication->post_title}</h3>
+              {$thumb}
+              {$title}
             </a>
          </div>
       </div>
@@ -186,7 +190,8 @@ EOT;
      $a = shortcode_atts(
      array(
        'count'  => '1',
-       'parent' => '240'
+       'parent' => '240',
+       'title'  => false
      ),
        $attr
    );
@@ -201,9 +206,7 @@ EOT;
      );
 
      end($query);
-     $output = display_publication( $query->posts[0] );
-
-     return $output;
+     return display_publication( $query->posts[0] );
  }
 
  /**
