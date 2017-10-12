@@ -34,6 +34,6 @@ add_action('widgets_init', 'clir_load_widgets');
  */
 function clir_load_widgets()
 {
-    register_widget('Community_Calendar_Widget');
+    // register_widget('Community_Calendar_Widget');
     register_widget('Social_Media_Links');
 }
