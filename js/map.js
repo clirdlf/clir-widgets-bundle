@@ -14,8 +14,9 @@
 
   function onEachFeature(feature, layer) {
     var popupContent = '';
-    if (feature.properties && feature.properties.popupContent) {
-      popupContent += feature.properties.popupContent;
+    if (feature.properties && feature.properties.organization) {
+      popupContent += '<h2>' + feature.properties.organization + '</h2>';
+      popupContent += '<p>' + feature.properties.City + ', ' + feature.properties.StateTerri+'</p>';
     }
 
     layer.bindPopup(popupContent);
@@ -35,8 +36,7 @@
   });
 
   // console.log(php_vars.layer);
-
-  var geoJsonLayer = L.geoJson(dlf, { // TODO: pass layer properly
+  var geoJsonLayer = L.geoJson(dlf, { // TODO: pass layer properly @see https://github.com/waynegraham/clir-widgets-bundle/issues/3
     onEachFeature: onEachFeature,
     pointToLayer: function(feature, latlng) {
       return L.marker(latlng);

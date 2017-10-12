@@ -18,7 +18,7 @@ class Community_Calendar_Widget extends WP_Widget
     function __construct()
     {
         parent::__construct(
-            'Community_Calendar_Widget', // Base ID
+            'Community_Calendar_Widget (CLIR)', // Base ID
             __('Community Calendar Widget', 'clir-widgets-bundle'), // Name
             array( 'description' => __('Adds the Community Calendar to the site.', 'clir-widgets-bundle'),) // Args
         );
