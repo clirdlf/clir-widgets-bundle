@@ -139,8 +139,13 @@ function display_publication($publication, $title_flag = false)
     $title = "<h3>". $publication->post_title . "</h3>";
   }
   $output = <<< EOT
-  <div class="col-sm-6 col-md-4"><div class="report-cover"><div class="img-frame rounded">
-  <div class="img-box figcaption-middle text-center"><a href="{$page_link}">{$thumb} {$title}</a></div></div></div></div>
+  <div class="col-sm-6 col-md-4">
+    <!-- <div class="report-cover"> -->
+      <div class="img-frame rounded">
+        <div class="img-box figcaption-middle text-center"><a href="{$page_link}">{$thumb} {$title}</a></div>
+      </div>
+    <!-- </div> -->
+  </div>
 EOT;
   return $output;
 }

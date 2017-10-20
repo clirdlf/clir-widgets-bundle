@@ -41,7 +41,7 @@ function the_excerpt_max_charlength($post, $charlength)
     $pdf = end($attachments);
     $thumb_id = get_post_thumbnail_id($pdf);
     if ($thumbnail_id = get_post_thumbnail_id($pdf->ID)) {
-      $output .= '<a class="pdf-link image-link" href="' . get_page_link($publication->ID) . '" title="'.esc_attr(get_the_title($pdf)).'">'.wp_get_attachment_image($thumbnail_id, 'medium', false, array("class" => "center-block img-responsive")).'</a>';
+      $output .= '<a class="pdf-link image-link" href="' . get_page_link($publication->ID) . '" title="'.esc_attr(get_the_title($pdf)).'">'.wp_get_attachment_image($thumbnail_id, 'medium', false, array("class" => "img-responsive center-block")).'</a>';
     }
     $output .= '<a href="' . get_page_link($publication->ID). '">';
     return $output;
