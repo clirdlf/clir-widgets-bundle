@@ -140,11 +140,9 @@ function display_publication($publication, $title_flag = false)
   }
   $output = <<< EOT
   <div class="col-sm-6 col-md-4">
-    <!-- <div class="report-cover"> -->
-      <div class="img-frame rounded">
-        <div class="img-box figcaption-middle text-center"><a href="{$page_link}">{$thumb} {$title}</a></div>
+    <div class="report-cover">
+        <a href="{$page_link}">{$thumb} {$title}</a>
       </div>
-    <!-- </div> -->
   </div>
 EOT;
   return $output;
