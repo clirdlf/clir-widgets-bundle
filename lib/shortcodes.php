@@ -109,17 +109,31 @@ EOT;
 /**
  * Shortcode for displaying a featured program
  */
-function clir_featured_program($attr)
+function program_spotlight($attr, $content = null)
 {
   $a = shortcode_atts(
     array(
-      'program' => 'Program Name',
-      'blurb'   => 'Program blurb',
-      'slug'    => '',
-      'image'   => ''
+      'heading' => 'Default Heading',
+      'url'     => '#',
+      'image'   => 'https://www.placecage.com/350/350'
     ),
     $attr
   );
+
+  $output = <<<EOT
+  <div class="col-md-4 col-sm-6 col-xs-6 col-xxs-12">
+      <a href="{$a['url']}" class="dlf-figure">
+        <figure>
+          <img src="{$a['image']}" alt="{$a['heading']}" class="img-responsive" width="350" height="350">
+        </figure>
+        <h3 class="dlf-figure-lead">{$a['heading']}</h3>
+        <p class="dlf-figure-text">$content</p>
+      </a>
+  </div>
+EOT;
+
+  return $output;
+
 }
 
 /**
@@ -252,18 +266,19 @@ function category_lookup($categories)
     }
     return implode(",", $category_ids);
   }
-  function dlf_excerpt($limit = 50, $source = null)
-  {
-    if ($source == "content" ? ($excerpt = get_the_content()) : ($excerpt = get_the_excerpt()));
-    $excerpt = preg_replace(" (\[.*?\])", '', $excerpt);
-    $excerpt = strip_shortcodes($excerpt);
-    $excerpt = strip_tags($excerpt);
-    $excerpt = substr($excerpt, 0, $limit);
-    $excerpt = substr($excerpt, 0, strripos($excerpt, " "));
-    $excerpt = trim(preg_replace('/\s+/', ' ', $excerpt));
-    $excerpt = $excerpt.'... <a href="' . get_permalink($post->ID) . '">more <i class="fa fa-angle-double-right" aria-hidden="true"></i></a>';
-    return $excerpt;
-  }
+
+function dlf_excerpt($limit = 50, $source = null)
+{
+  if ($source == "content" ? ($excerpt = get_the_content()) : ($excerpt = get_the_excerpt()));
+  $excerpt = preg_replace(" (\[.*?\])", '', $excerpt);
+  $excerpt = strip_shortcodes($excerpt);
+  $excerpt = strip_tags($excerpt);
+  $excerpt = substr($excerpt, 0, $limit);
+  $excerpt = substr($excerpt, 0, strripos($excerpt, " "));
+  $excerpt = trim(preg_replace('/\s+/', ' ', $excerpt));
+  $excerpt = $excerpt.'... <a href="' . get_permalink($post->ID) . '">more <i class="fa fa-angle-double-right" aria-hidden="true"></i></a>';
+  return $excerpt;
+}
 
 function clir_last_featured($attr)
   {
@@ -307,6 +322,7 @@ EOT;
     $output .= '</div>';
     return $output;
   }
+
   /**
   * Retrieve category IDs from a string of categories
   *
@@ -314,11 +330,13 @@ EOT;
   *
   * @return Array Ids of the categories
   */
+
   function get_category_ids($categories)
   {
     $categories = explode(',', $categories);
     return category_lookup($categories);
   }
+
   function dlf_news($atts)
   {
     $a = shortcode_atts(array(
@@ -356,6 +374,8 @@ EOT;
     }
     return $output;
   }
+
+
   function dlf_post($atts)
   {
     $a = shortcode_atts(array(
@@ -403,7 +423,7 @@ EOT;
     add_shortcode('publication', 'clir_publications');
     add_shortcode('random_publication', 'clir_random_publications');
     add_shortcode('last_featured', 'clir_last_featured');
-    add_shortcode('featured_program', 'clir_featured_program');
+    add_shortcode('program_spotlight', 'program_spotlight');
     add_shortcode('email', 'hide_email');
     add_shortcode('clir_map', 'map');
     add_shortcode('dlf_post', 'dlf_post');
