@@ -107,6 +107,19 @@ EOT;
 }
 
 /**
+ * Shortcode to get around stripping fontawesome icons in <i></i>
+ */
+function fontawesome($attr)
+{
+  $a = shortcode_atts(
+    array('shortcode' => ''),
+    $attr
+  );
+
+  return '<i class="fa '. $a['shortcode'] . '" aria-hidden="true">';
+}
+
+/**
  * Shortcode for displaying a featured program
  */
 function program_spotlight($attr, $content = null)
@@ -418,6 +431,7 @@ EOT;
   function register_shortcodes()
   {
     add_shortcode('clearboth', 'clir_clearfix');
+    add_shortcode('icon', 'fontawesome');
     add_shortcode('community_calendar', 'community_calendar');
     add_shortcode('recent_publications', 'clir_recent_reports');
     add_shortcode('publication', 'clir_publications');
