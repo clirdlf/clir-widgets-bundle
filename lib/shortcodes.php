@@ -41,7 +41,7 @@ function image_frame($attr, $content = null)
   preg_match($pattern, $content, $matches);
   $thumb = $matches[1] . '-150x150.' . $matches[2];
 
-  $image = '<figure style="max-width:'. $a['width'] . 'px" class="wp-caption alignnone">';
+  $image = '<figure style="max-width:'. $a['width'] . 'px" class="wp-caption alignleft">';
   $image .= '<img class="'. $a['style'] . '" src="' . $thumb . '" title="'. $a['title']. '" alt="'. $a['alt'] .'" width="'. $a['width'] . '" height="'. $a['height'] .'" />';
   $image .= '<figcaption class="wp-caption-text">'. $a['caption']. '</figcaption>';
   $image .= '</figure>';
