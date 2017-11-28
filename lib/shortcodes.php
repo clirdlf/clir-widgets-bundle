@@ -13,6 +13,41 @@ function clir_clearfix()
 {
   return '<div class="clearfix visible-xs-block"></div>';
 }
+
+/**
+* Used in DLF theme; couldn't find what plugin contained this so I made one.
+* Updated for Bootstrap
+*
+* @see http://getbootstrap.com/css/#grid-example-mixed-complete
+*
+* @return String An image that mimics the older [image_frame] shortcode
+*/
+function image_frame($attr, $content = null)
+{
+  $a = shortcode_atts(
+    array(
+      'style'   => '',
+      'alt'     => '',
+      'height'  => '',
+      'width'   => '',
+      'title'   => '',
+      'caption' => ''
+    ),
+    $attr
+  );
+
+  // reset image call
+  $pattern = '/^(.*).(jpg|png|jpeg)$/';
+  preg_match($pattern, $content, $matches);
+  $thumb = $matches[1] . '-150x150.' . $matches[2];
+
+  $image = '<figure style="max-width:'. $a['width'] . 'px" class="wp-caption alignnone">';
+  $image .= '<img class="'. $a['style'] . '" src="' . $thumb . '" title="'. $a['title']. '" alt="'. $a['alt'] .'" width="'. $a['width'] . '" height="'. $a['height'] .'" />';
+  $image .= '<figcaption class="wp-caption-text">'. $a['caption']. '</figcaption>';
+  $image .= '</figure>';
+  return $image;
+}
+
 /**
 * Display deadline date
 *
@@ -443,5 +478,6 @@ EOT;
     add_shortcode('dlf_post', 'dlf_post');
     add_shortcode('dlf_news', 'dlf_news');
     add_shortcode('menu_entry', 'dlf_menu_entry');
+    add_shortcode('image_frame', 'image_frame');
   }
   add_action('init', 'register_shortcodes');
