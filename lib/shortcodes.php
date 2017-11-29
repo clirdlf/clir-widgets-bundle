@@ -147,11 +147,11 @@ EOT;
 function fontawesome($attr)
 {
   $a = shortcode_atts(
-    array('shortcode' => ''),
+    array('name' => ''),
     $attr
   );
 
-  return '<i class="fa '. $a['shortcode'] . '" aria-hidden="true">';
+  return '<i class="fa '. $a['name'] . '" aria-hidden="true"></i>';
 }
 
 /**
