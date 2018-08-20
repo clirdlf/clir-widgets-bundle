@@ -6,7 +6,7 @@
  * Text Domain: clir-widgets-bundle
  * Domain Path: /languages
  * Author: Council on Libraries and Information Resources
- * Version: 0.0.2
+ * Version: 0.1.0
  * Author URI: https://www.clir.org
  * License: GPL3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.txt
