@@ -18,9 +18,9 @@ class Community_Calendar_Widget extends WP_Widget
     function __construct()
     {
         parent::__construct(
-            'Community_Calendar_Widget', // Base ID
+            'Community_Calendar_Widget (CLIR)', // Base ID
             __('Community Calendar Widget', 'clir-widgets-bundle'), // Name
-            array( 'description' => __('Adds the Community Calendar to the site.', 'clir-widgets-bundle'),) // Args
+            array( 'description' => __('Adds the DLF Community Calendar.', 'clir-widgets-bundle'),) // Args
         );
     }
 
@@ -36,7 +36,7 @@ class Community_Calendar_Widget extends WP_Widget
     {
         if (array_key_exists('before_widget', $args)) echo $args['before_widget'];
 
-        echo '<h2 class="widget-title">Upcoming Events</h2>';
+        // echo '<h2 class="widget-title">Upcoming Events</h2>';
         echo '<div id="community_calendar"><ul class="list-unstyled" id="upcoming-events"></ul></div>';
         wp_enqueue_script('moment', 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js');
 

@@ -5,7 +5,7 @@ var prefix      = require('gulp-autoprefixer');
 var cp          = require('child_process');
 var sourcemaps  = require('gulp-sourcemaps');
 
-var dev_url     = "localhost:8888/wordpress";
+var dev_url     = "clir.localhost";
 
 /**
  * Browser sync for WP theme
