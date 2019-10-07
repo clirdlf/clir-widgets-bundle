@@ -20,8 +20,11 @@ function clir_clearfix()
  * @see https://gist.github.com/codescribblr/8984457
  *
  * @var $atts array Attributes for the iframe
+ *
+ * @return String iframe code
  */
- function iframe($atts) {
+function iframe($atts)
+{
     extract(shortcode_atts(array(
        'src' => "",
        'title' => "",
@@ -34,7 +37,7 @@ function clir_clearfix()
     $iframe = '<iframe src="'.$src.'"  title="'.$title.'" width="'.$width.'" height="'.$height.'" allow="'. $allow .'"></iframe>';
 
     return $iframe;
- }
+}
 // funciton iframe($atts)
 // {
 //   extract(
