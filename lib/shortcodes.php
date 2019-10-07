@@ -17,7 +17,7 @@ function clir_clearfix()
 /**
  * Adds an iframe shortcode so visual editor doesn't strip the tags
  *
- * @see https://gist.github.com/codescribblr/8984457
+ * @see https://gist.github.com/codescribblr/8984457, changed for HTML5 compliance
  *
  * @var $atts array Attributes for the iframe
  *
@@ -38,28 +38,6 @@ function iframe($atts)
 
     return $iframe;
 }
-// funciton iframe($atts)
-// {
-//   extract(
-//       shortcode_atts(
-//           array(
-//               'src' => "",
-//               'title' => "",
-//               'width' => "800",
-//               'height' => "600",
-//               'allow' => 'fullscreen',
-//               'style'
-//             ),
-//             $atts)
-//         );
-//
-//   $iframe = 'iframe working: <iframe src="'.$src.'" title="'.$title.'" width="'.$width.'" height="'.$height.'" allow="'. $allow .'"></iframe>';
-//
-//
-//   return $iframe;
-//
-//
-// }
 
 /**
 * Used in DLF theme; couldn't find what plugin contained this so I made one.
