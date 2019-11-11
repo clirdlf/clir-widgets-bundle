@@ -17,8 +17,7 @@ function clir_category_link( $title_tag, $original_atts )
   // echo ($title_tag);
   // echo '</pre>';
   // $return .= $inner . $close;
-  return $return;
-
+  // return $return;
 }
 
 /**

@@ -287,6 +287,57 @@ function clir_publications($attr)
 }
 
 /**
+ * Shortcode for displaying modal window for Global page
+ *
+ * @params Array $attr Array of options for modal window
+ *
+ * @return String div with modal formatting
+ */
+function clir_modal_window($attr, $content)
+{
+
+    $a = shortcode_atts(
+        array(
+          'image' => '',
+          'title'   => '',
+          'attribution' => '',
+          'class' => 'col-md-4 col-sm-6 col-xs-6 col-xxs-12'
+        ),
+        $attr
+    );
+
+    // modal_id = sanitize_title($a['title']);
+    $slug = sanitize_title($a['title']);
+    $modal_label = $slug . 'Label';
+
+    $output = <<<EOT
+<div class="{$a['class']}">
+  <figure>
+    <img src="{$a['image']}" data-toggle="modal" data-target="#{$slug}"/>
+  </figure>
+  <div class="modal fade" id="{$slug}" tabindex="-1" role="dialog" aria-labelledby="{$a['title']}">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="{$modal_label}">{$a['title']}</h4>
+          </div>
+          <div class="modal-body">
+            $content
+          </div>
+          <div class="modal-footer">
+            <p>{$a['attribution']}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+EOT;
+
+    return $output;
+}
+
+/**
 * Shortcode for displaying report convers
 *
 * @see https://codex.wordpress.org/Function_Reference/get_pages
@@ -505,6 +556,7 @@ function register_shortcodes()
     add_shortcode('dlf_news', 'dlf_news');
     add_shortcode('menu_entry', 'dlf_menu_entry');
     add_shortcode('image_frame', 'image_frame');
+    add_shortcode('clir_modal_window', 'clir_modal_window');
 }
 
 
