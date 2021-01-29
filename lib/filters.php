@@ -27,12 +27,14 @@ function clir_category_link( $title_tag, $original_atts )
  * @param string $more "Read more" excerpt string.
  * @return string (Maybe) modified "read more" excerpt string.
  */
-function wpdocs_excerpt_more( $more ) {
-    return sprintf( '<a class="read-more" href="%1$s"> %2$s</a>',
-        get_permalink( get_the_ID() ),
-        __( 'Read More', 'textdomain' )
+function wpdocs_excerpt_more($more)
+{
+    return sprintf(
+        '<a class="read-more" href="%1$s"> %2$s</a>',
+        get_permalink(get_the_ID()),
+        __('Read More', 'textdomain')
     );
 }
-add_filter( 'excerpt_more', 'wpdocs_excerpt_more' );
+add_filter('excerpt_more', 'wpdocs_excerpt_more');
 
 // add_filter('display_posts_shortcode_title_tag', 'clir_category_link');

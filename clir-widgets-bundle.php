@@ -13,9 +13,10 @@
  */
 
 define('CLIR_WIDGETS_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('CLIR_WIDGETS_PLUGIN_URL', pluginS_URL(__FILE__));
+define('CLIR_WIDGETS_PLUGIN_URL', plugins_url(__FILE__));
 
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/calendar-widget.php';
+require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/bootstrap_shortcode_shim.php';
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/social-media-links.php';
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/filters.php';
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/informz-widget.php';
@@ -38,5 +39,4 @@ function clir_load_widgets()
     // register_widget('Community_Calendar_Widget');
     register_widget('Social_Media_Links');
     register_widget('Informz_Tracking_Widget');
-
 }

@@ -6,5 +6,4 @@ if ($thumbnail_id = get_post_thumbnail_id($pdf->ID)) {
  $output .= '<a href="' . get_page_link($publication->ID). '">';
 ?>
 
-hi
 <a href=""><?php $publication->post_title ?></a>

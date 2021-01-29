@@ -14,6 +14,31 @@ function clir_clearfix()
     return '<div class="clearfix visible-xs-block"></div>';
 }
 
+function shortcode_report($atts)
+{
+    extract(shortcode_atts(array(
+      'prefix' => "ms_",
+    ), $atts));
+
+    global $wpdb;
+    $query = "SELECT ID, post_title, post_content, guid FROM ".$wpdb->posts." WHERE post_content LIKE '%[".$prefix."%' AND post_status = 'publish'";
+    $results = $wpdb->get_results($query);
+
+    $html = '<h1>Shortcode Report for '. $prefix . '</h1>';
+    $html .= '<p>';
+    $html .= 'Pages using shortcodes beginning in ' . sizeof($results);
+    $html .= '</p>';
+
+    $html .= '<ul>';
+    foreach ($results as $result) {
+      
+      //TODO: not every page as a guid
+        $html .= '<li><a href="/clir/?page_id=' . $result->ID . '">' . $result->post_title . '</a>';
+    }
+    $html .= '</ul>';
+    return $html;
+}
+
 /**
  * Adds an iframe shortcode so visual editor doesn't strip the tags
  *
@@ -522,7 +547,8 @@ function dlf_post($atts)
     $post = $posts[0];
     $thumb = random_image($a['category']);
     if (has_post_thumbnail()) {
-        $thumb = the_post_thumbnail(array(270, 270)); // @see https://developer.wordpress.org/reference/functions/the_post_thumbnail/
+        // @see https://developer.wordpress.org/reference/functions/the_post_thumbnail/
+        $thumb = the_post_thumbnail(array(270, 270));
     }
     setup_postdata($post);
     $permalink    = get_permalink($post["ID"]);
@@ -557,6 +583,7 @@ function register_shortcodes()
     add_shortcode('menu_entry', 'dlf_menu_entry');
     add_shortcode('image_frame', 'image_frame');
     add_shortcode('clir_modal_window', 'clir_modal_window');
+    add_shortcode('shortcode_report', 'shortcode_report');
 }
 
 

@@ -9,14 +9,14 @@
      /*
       * Register widget with WordPress.
       */
-      public function __construct()
-      {
+    public function __construct()
+    {
           parent::__construct(
-                'Social_Media_Links', // Base ID
-                __('Social Media Links', 'clir-widgets-bundle'), // Name
-                array('description' => __('Adds social media links for the site.', 'clir-widgets-bundle')) // Args
-            );
-      }
+              'Social_Media_Links', // Base ID
+              __('Social Media Links', 'clir-widgets-bundle'), // Name
+              array('description' => __('Adds social media links for the site.', 'clir-widgets-bundle')) // Args
+          );
+    }
 
       /**
       * Overrides alchem_get_social
