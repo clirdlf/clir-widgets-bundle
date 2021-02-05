@@ -18,42 +18,44 @@
             );
       }
 
-      /**
-      * Overrides alchem_get_social
-      * @see alchem_get_social
-      */
-     public function clir_get_social( $position, $class = 'top-bar-sns',$placement='top',$target='_blank')
-     {
-         global $alchem_social_icons;
-         $return = '';
-         $rel = '';
+      if(function_exists(alchem_option)){
+          /**
+          * Overrides alchem_get_social
+          * @see alchem_get_social
+          */
+         public function clir_get_social( $position, $class = 'top-bar-sns',$placement='top',$target='_blank')
+         {
+             global $alchem_social_icons;
+             $return = '';
+             $rel = '';
 
-         $social_links_nofollow = alchem_option('social_links_nofollow', 'no');
-         $social_new_window = alchem_option('social_new_window', 'yes');
-         if ($social_new_window == 'no') {
-             $target = '_self';
-         }
-
-         if ($social_links_nofollow == 'yes') {
-             $rel = 'nofollow';
-         }
-
-         if (is_array($alchem_social_icons) && !empty($alchem_social_icons)):
-            $return .= '<ul class="'.esc_attr($class).'">';
-         $i = 1;
-         foreach ($alchem_social_icons as $sns_list_item) {
-             $icon = alchem_option($position.'_social_icon_'.$i, '');
-             $title = alchem_option($position.'_social_title_'.$i, '');
-             $link = alchem_option($position.'_social_link_'.$i, '');
-             if ($icon != '') {
-                 $return .= '<li><a target="'.esc_attr($target).'" rel="'.$rel.'" href="'.esc_url($link).'" data-placement="'.esc_attr($placement).'" data-toggle="tooltip" title="'.esc_attr($title).'"><i class="fa fa-'.esc_attr($icon).'"></i> '.esc_attr($title) .'</a></li>';
+             $social_links_nofollow = alchem_option('social_links_nofollow', 'no');
+             $social_new_window = alchem_option('social_new_window', 'yes');
+             if ($social_new_window == 'no') {
+                 $target = '_self';
              }
-             ++$i;
-         }
-         $return .= '</ul>';
-         endif;
 
-         return $return;
+             if ($social_links_nofollow == 'yes') {
+                 $rel = 'nofollow';
+             }
+
+             if (is_array($alchem_social_icons) && !empty($alchem_social_icons)):
+                $return .= '<ul class="'.esc_attr($class).'">';
+             $i = 1;
+             foreach ($alchem_social_icons as $sns_list_item) {
+                 $icon = alchem_option($position.'_social_icon_'.$i, '');
+                 $title = alchem_option($position.'_social_title_'.$i, '');
+                 $link = alchem_option($position.'_social_link_'.$i, '');
+                 if ($icon != '') {
+                     $return .= '<li><a target="'.esc_attr($target).'" rel="'.$rel.'" href="'.esc_url($link).'" data-placement="'.esc_attr($placement).'" data-toggle="tooltip" title="'.esc_attr($title).'"><i class="fa fa-'.esc_attr($icon).'"></i> '.esc_attr($title) .'</a></li>';
+                 }
+                 ++$i;
+             }
+             $return .= '</ul>';
+             endif;
+
+             return $return;
+         }
      }
 
      /**
