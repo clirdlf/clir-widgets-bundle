@@ -17,10 +17,9 @@
   },
   "homepage": "https://github.com/waynegraham/clir-widgets-bundle#readme",
   "devDependencies": {
-    "browser-sync": "^2.18.13",
-    "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^3.1.0",
-    "gulp-sass": "^2.3.2",
-    "gulp-sourcemaps": "^1.12.0"
+    "browser-sync": "^2.27.7",
+    "gulp-autoprefixer": "^8.0.0",
+    "gulp-sass": "^5.0.0",
+    "gulp-sourcemaps": "^3.0.0"
   }
 }
