@@ -22,6 +22,7 @@ function clir_register_post_types()
         'singular_name' => __( 'Person' )
       ),
       'rewrite' => array('slug' => 'people')
+    )
     );
 
     foreach($post_types as $name => $args){
@@ -30,4 +31,4 @@ function clir_register_post_types()
     }
   }
 
-  add_action('init', clir_register_post_types);
+  add_action('init', 'clir_register_post_types');

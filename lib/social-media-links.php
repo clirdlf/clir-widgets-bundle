@@ -18,13 +18,16 @@
             );
       }
 
-      if(function_exists(alchem_option)){
           /**
           * Overrides alchem_get_social
           * @see alchem_get_social
           */
          public function clir_get_social( $position, $class = 'top-bar-sns',$placement='top',$target='_blank')
          {
+             if (!function_exists('alchem_option')) {
+                 return '';
+             }
+
              global $alchem_social_icons;
              $return = '';
              $rel = '';
@@ -56,7 +59,6 @@
 
              return $return;
          }
-     }
 
      /**
       * Front-end display of widget.
