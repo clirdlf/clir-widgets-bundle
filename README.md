@@ -52,6 +52,22 @@ a destination and credentials; it is not configured here.
 
 ## Inventory shortcode usage before cleanup
 
+The October 2026 network report found references to `clearboth`, `iframe`, `email`,
+`clir_map`, and `image_frame`; these remain registered. The eleven tags with zero
+matches were removed: `icon`, `community_calendar`, `recent_publications`,
+`publication`, `random_publication`, `last_featured`, `program_spotlight`,
+`dlf_post`, `dlf_news`, `menu_entry`, and `clir_modal_window`. Their callbacks and
+helpers exclusive to those callbacks were also removed from `lib/shortcodes.php`.
+The inventory script continues to search all sixteen historical tags so it can
+detect retired tags in drafts or content restored later. The report covers stored
+published content; external themes, widget options, and custom fields were not scanned.
+
+JavaScript cleanup retains `js/map.js` for `[clir_map]`. The disabled community
+calendar widget, `js/community_calendar.js`, its bundled calendar formatter, and
+the unreferenced `js/unicorns.js` Easter egg have been removed. The shortcode
+inventory does not establish whether an external theme registered the old widget
+or loaded those scripts directly.
+
 Copy `scripts/inventory-shortcodes.php` to each site's server, or use a local copy
 of each site's database. Run it through WP-CLI in that WordPress installation:
 

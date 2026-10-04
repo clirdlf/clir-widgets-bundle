@@ -14,6 +14,9 @@ quality
 scripts
 tests
 docs
+/report
+scratch.md
+package-lock.json
 README.md
 composer.json
 composer.lock

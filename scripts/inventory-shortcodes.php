@@ -10,7 +10,8 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 
 global $wpdb;
 
-// Keep this list in sync with lib/shortcodes.php, including missing callbacks.
+// Audit both active and retired tags so later scans can detect legacy content.
+// Eleven zero-match tags were retired using the October 2026 network report.
 $tags = array(
 	'clearboth', 'icon', 'iframe', 'community_calendar', 'recent_publications',
 	'publication', 'random_publication', 'last_featured', 'program_spotlight',

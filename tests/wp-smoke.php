@@ -19,5 +19,17 @@ if ( false === strpos( do_shortcode( '[email]example@example.org[/email]' ), 'ma
     throw new RuntimeException( 'Email shortcode failed.' );
 }
 
-// Activation is not a full rendering test. Known broken shortcodes are in the audit.
+foreach ( array( 'clearboth', 'iframe', 'email', 'clir_map', 'image_frame' ) as $tag ) {
+    if ( ! shortcode_exists( $tag ) || ! is_callable( $GLOBALS['shortcode_tags'][ $tag ] ) ) {
+        throw new RuntimeException( 'Active shortcode missing or invalid: ' . $tag );
+    }
+}
+
+foreach ( array( 'icon', 'community_calendar', 'recent_publications', 'publication', 'random_publication', 'last_featured', 'program_spotlight', 'dlf_post', 'dlf_news', 'menu_entry', 'clir_modal_window' ) as $tag ) {
+    if ( shortcode_exists( $tag ) ) {
+        throw new RuntimeException( 'Retired shortcode still registered: ' . $tag );
+    }
+}
+
+// Activation is not a full rendering test. Remaining rendering issues are in the audit.
 echo "Plugin activation, widget registration and basic shortcode smoke checks passed.\n";
