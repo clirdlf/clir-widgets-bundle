@@ -17,7 +17,7 @@ Development requires PHP 8.3+, Composer 2, and WP-CLI for packaging. PHP's ZIP e
 
 ## Review and GitHub workflows
 
-See [the PHP 8.3 and WordPress 7.1.2 audit](docs/compatibility-audit.md) for bugs, style issues, removal candidates, test limits, and the cleanup order. The plugin ships its JavaScript directly and does not compile frontend assets.
+See [the PHP 8.3–8.5 and WordPress 7.1.2 audit](docs/compatibility-audit.md) for bugs, style issues, removal candidates, test limits, and the cleanup order. The plugin ships its JavaScript directly and does not compile frontend assets.
 
 Install the development checks with Composer 2 and run:
 

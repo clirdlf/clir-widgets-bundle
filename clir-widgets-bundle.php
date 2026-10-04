@@ -12,27 +12,14 @@
  * License URI: https://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-define('CLIR_WIDGETS_PLUGIN_PATH', plugin_dir_path(__FILE__));
-define('CLIR_WIDGETS_PLUGIN_URL', pluginS_URL(__FILE__));
+define( 'CLIR_WIDGETS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+define( 'CLIR_WIDGETS_PLUGIN_URL', pluginS_URL( __FILE__ ) );
 
-require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/social-media-links.php';
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/filters.php';
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/shortcodes.php';
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/overrides.php';
 
 // Block direct requests
-if (!defined('ABSPATH')) {
-    die(-1);
-}
-
-add_action('widgets_init', 'clir_load_widgets');
-
-/**
- * Load widgets
- * @return null
- */
-function clir_load_widgets()
-{
-    register_widget('Social_Media_Links');
-
+if ( ! defined( 'ABSPATH' ) ) {
+	die( -1 );
 }

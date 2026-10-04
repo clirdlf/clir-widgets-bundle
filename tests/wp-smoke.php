@@ -5,12 +5,6 @@ if ( ! is_plugin_active( 'clir-widgets-bundle/clir-widgets-bundle.php' ) ) {
     throw new RuntimeException( 'Plugin was not activated.' );
 }
 
-foreach ( array( 'Social_Media_Links' ) as $widget_class ) {
-    if ( ! isset( $GLOBALS['wp_widget_factory']->widgets[ $widget_class ] ) ) {
-        throw new RuntimeException( 'Widget not registered: ' . $widget_class );
-    }
-}
-
 if ( '<div class="clearfix visible-xs-block"></div>' !== do_shortcode( '[clearboth]' ) ) {
     throw new RuntimeException( 'Clearboth shortcode failed.' );
 }
@@ -32,4 +26,4 @@ foreach ( array( 'icon', 'community_calendar', 'recent_publications', 'publicati
 }
 
 // Activation is not a full rendering test. Remaining rendering issues are in the audit.
-echo "Plugin activation, widget registration and basic shortcode smoke checks passed.\n";
+echo "Plugin activation and basic shortcode smoke checks passed.\n";
