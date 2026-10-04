@@ -6,17 +6,30 @@
  */
 
 /**
- * Filter the "read more" excerpt string link to the post.
+ * Replace the default automatic-excerpt suffix with a link to its post.
  *
- * @see https://developer.wordpress.org/reference/functions/the_excerpt/
+ * @see https://developer.wordpress.org/reference/hooks/get_the_excerpt/
  *
- * @return string (Maybe) modified "read more" excerpt string.
+ * @param string  $excerpt Filtered excerpt text.
+ * @param WP_Post $post    The post whose excerpt is being generated.
+ * @return string Excerpt with a read-more link when automatically truncated.
  */
-function wpdocs_excerpt_more() {
-	return sprintf(
-		'<a class="read-more" href="%1$s"> %2$s</a>',
-		get_permalink( get_the_ID() ),
-		__( 'Read More', 'clir-widgets-bundle' )
+function wpdocs_excerpt_more( $excerpt, $post ) {
+	$more = ' [&hellip;]';
+	if ( ! $post instanceof WP_Post || '' !== trim( $post->post_excerpt ) || ! str_ends_with( $excerpt, $more ) ) {
+		return $excerpt;
+	}
+
+	$url = get_permalink( $post->ID );
+	if ( ! $url ) {
+		return $excerpt;
+	}
+
+	return substr( $excerpt, 0, -strlen( $more ) ) . sprintf(
+		' <a class="read-more" href="%1$s">%2$s</a>',
+		esc_url( $url ),
+		esc_html__( 'Read More', 'clir-widgets-bundle' )
 	);
 }
-add_filter( 'excerpt_more', 'wpdocs_excerpt_more', 10, 0 );
+// Run after WordPress generates the excerpt, using the supplied post context.
+add_filter( 'get_the_excerpt', 'wpdocs_excerpt_more', 11, 2 );

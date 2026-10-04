@@ -17,7 +17,7 @@ Development requires PHP 8.3+, Composer 2, and WP-CLI for packaging. PHP's ZIP e
 
 ## Review and GitHub workflows
 
-See [the PHP 8.3–8.5 and WordPress 7.1.2 audit](docs/compatibility-audit.md) for bugs, style issues, removal candidates, test limits, and the cleanup order. The plugin ships its JavaScript directly and does not compile frontend assets.
+See [the PHP 8.3–8.5 and WordPress 7.1.2 audit](docs/compatibility-audit.md) for bugs, style issues, removal candidates, test limits, and the cleanup order. The plugin no longer ships JavaScript or compiles frontend assets.
 
 Install the development checks with Composer 2 and run:
 
@@ -52,8 +52,15 @@ a destination and credentials; it is not configured here.
 
 ## Inventory shortcode usage before cleanup
 
+The read-more customization runs on `get_the_excerpt` using the requested post's
+ID. It escapes the link URL and translated label, and replaces only the default
+automatic-excerpt suffix. Manual excerpts, short excerpts, and other custom
+suffixes are preserved. Themes that call `wp_trim_excerpt()` directly bypass this
+customization; check active templates before deployment.
+
 The October 2026 network report found references to `clearboth`, `iframe`, `email`,
-`clir_map`, and `image_frame`; these remain registered. The eleven tags with zero
+`clir_map`, and `image_frame`. The map shortcode and its JavaScript were subsequently
+removed at the user's request; the other four tags remain registered. The eleven tags with zero
 matches were removed: `icon`, `community_calendar`, `recent_publications`,
 `publication`, `random_publication`, `last_featured`, `program_spotlight`,
 `dlf_post`, `dlf_news`, `menu_entry`, and `clir_modal_window`. Their callbacks and
@@ -62,7 +69,7 @@ The inventory script continues to search all sixteen historical tags so it can
 detect retired tags in drafts or content restored later. The report covers stored
 published content; external themes, widget options, and custom fields were not scanned.
 
-JavaScript cleanup retains `js/map.js` for `[clir_map]`. The disabled community
+JavaScript cleanup also removed `js/map.js` and the `[clir_map]` callback. The disabled community
 calendar widget, `js/community_calendar.js`, its bundled calendar formatter, and
 the unreferenced `js/unicorns.js` Easter egg have been removed. The shortcode
 inventory does not establish whether an external theme registered the old widget

@@ -118,40 +118,6 @@ function hide_email( $atts, $content = null ) {
 }
 
 /**
- * Shortcode for embedding map in to a page
- *
- * @param array $attr Map shortcode attributes.
- * @return string Map container markup.
- */
-function map( $attr ) {
-	$a = shortcode_atts(
-		array(
-			'data'  => 'https://clirdlf.github.io/maps/data.js',
-			'layer' => '',
-		),
-		$attr
-	);
-
-	$data = array(
-		'layer' => $a['layer'],
-	);
-	// Use a local cache revision for remote resources without a pinned release.
-	$asset_version = (string) filemtime( __FILE__ );
-	$map_version   = (string) filemtime( CLIR_WIDGETS_PLUGIN_PATH . 'js/map.js' );
-	wp_enqueue_style( 'leaflet', 'https://unpkg.com/leaflet@1.0.3/dist/leaflet.css', array(), '1.0.3' );
-	wp_enqueue_style( 'MarkerCluster', 'https://unpkg.com/leaflet.markercluster@1.0.3/dist/MarkerCluster.css', array( 'leaflet' ), '1.0.3' );
-	wp_enqueue_style( 'MarkerCluster-Default', 'https://unpkg.com/leaflet.markercluster@1.0.3/dist/MarkerCluster.Default.css', array( 'MarkerCluster' ), '1.0.3' );
-	wp_enqueue_script( 'leaflet', 'https://unpkg.com/leaflet@1.0.3/dist/leaflet.js', array(), '1.0.3', true );
-	wp_enqueue_script( 'map-data', 'https://clirdlf.github.io/maps/data.js', array(), $asset_version, true );
-	wp_enqueue_script( 'markercluster', 'https://unpkg.com/leaflet.markercluster@1.0.3/dist/leaflet.markercluster.js', array( 'leaflet' ), '1.0.3', true );
-	wp_enqueue_script( 'oms', 'http://jawj.github.io/OverlappingMarkerSpiderfier-Leaflet/bin/oms.min.js', array( 'leaflet' ), $asset_version, true ); // TODO: Don't hotlink this.
-	wp_enqueue_script( 'map', plugins_url( '/js/map.js', __DIR__ ), array( 'jquery', 'leaflet', 'map-data', 'markercluster', 'oms' ), $map_version, true );
-	wp_localize_script( 'map', 'php_vars', $data );
-	$output = '<div id="clir_map" style="width:100%;height:600px;"></div>';
-	return $output;
-}
-
-/**
  * Register the retained shortcode callbacks.
  *
  * @return void
@@ -160,7 +126,6 @@ function register_shortcodes() {
 	add_shortcode( 'clearboth', 'clir_clearfix' );
 	add_shortcode( 'iframe', 'iframe' );
 	add_shortcode( 'email', 'hide_email' );
-	add_shortcode( 'clir_map', 'map' );
 	add_shortcode( 'image_frame', 'image_frame' );
 }
 
