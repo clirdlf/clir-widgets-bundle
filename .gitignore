@@ -1,3 +1,6 @@
 node_modules/
 page_markup/
 temp/
+vendor/
+build/
+__pycache__/

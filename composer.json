@@ -1,0 +1,35 @@
+{
+  "name": "clirdlf/clir-widgets-bundle",
+  "description": "Development checks for the CLIR WordPress widgets plugin",
+  "type": "wordpress-plugin",
+  "license": "GPL-3.0-or-later",
+  "require-dev": {
+    "phpcompatibility/php-compatibility": "^10.0@dev",
+    "phpcompatibility/phpcompatibility-paragonie": "^2.0@dev",
+    "wp-coding-standards/wpcs": "^3.0",
+    "phpcompatibility/phpcompatibility-wp": "^3.0@dev",
+    "wp-cli/dist-archive-command": "^3.0"
+  },
+  "prefer-stable": true,
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "platform": { "php": "8.3.0" },
+    "sort-packages": true
+  },
+  "scripts": {
+    "standards": "phpcs --standard=phpcs.xml.dist",
+    "compatibility": "phpcs --standard=phpcompatibility.xml.dist",
+    "check:standards": "@php scripts/check-standards.php standards",
+    "check:compatibility": "@php scripts/check-standards.php compatibility",
+    "check": ["@test", "@check:standards", "@check:compatibility"],
+    "test": "@php tests/quality-gate.php",
+    "baseline:standards": "@php scripts/check-standards.php standards --update-baseline",
+    "baseline:compatibility": "@php scripts/check-standards.php compatibility --update-baseline",
+    "package": [
+      "wp --require=vendor/autoload.php dist-archive . build/clir-widgets-bundle.zip --create-target-dir --force --plugin-dirname=clir-widgets-bundle",
+      "@php tests/package.php"
+    ]
+  }
+}

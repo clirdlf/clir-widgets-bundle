@@ -1,0 +1,81 @@
+name: Plugin CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: PHP 8.3 quality baseline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: zip
+          tools: composer:v2
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - name: Verify the baseline gate rejects regressions
+        run: composer test
+      - name: Lint every project PHP file
+        run: find . -path './vendor' -prune -o -path './.git' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Check WordPress standards against reviewed baseline
+        run: composer check:standards
+      - name: Check PHP compatibility against reviewed baseline
+        if: '!cancelled()'
+        run: composer check:compatibility
+      - uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: quality-reports
+          path: build/*-report.json
+          if-no-files-found: error
+
+  wordpress:
+    name: WordPress 7.1.2 on PHP 8.3
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mysqli, zip
+          tools: wp-cli, composer:v2
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - name: Build installable plugin with WP-CLI
+        run: composer package
+      - name: Install exact WordPress target
+        run: |
+          mkdir -p /tmp/clir-wordpress
+          wp core download --version=7.1.2 --path=/tmp/clir-wordpress
+          wp config create --dbname=wordpress --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306 --path=/tmp/clir-wordpress
+          wp config set WP_DEBUG true --raw --path=/tmp/clir-wordpress
+          wp core install --url=http://localhost --title='CLIR CI' --admin_user=ci --admin_password=local-ci-password --admin_email=ci@example.org --skip-email --path=/tmp/clir-wordpress
+      - name: Activate packaged plugin and run smoke checks
+        run: |
+          wp plugin install "$GITHUB_WORKSPACE/build/clir-widgets-bundle.zip" --activate --path=/tmp/clir-wordpress
+          wp eval-file "$GITHUB_WORKSPACE/tests/wp-smoke.php" --path=/tmp/clir-wordpress
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clir-widgets-bundle
+          path: build/clir-widgets-bundle.zip
+          if-no-files-found: error

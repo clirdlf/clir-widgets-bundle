@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<ruleset name="CLIR WordPress standards">
+  <description>Full WordPress standards; legacy findings are tracked separately.</description>
+  <file>clir-widgets-bundle.php</file>
+  <file>lib</file>
+  <file>custom-post-types</file>
+  <file>partials</file>
+  <arg name="extensions" value="php"/>
+  <arg value="s"/>
+  <rule ref="WordPress"/>
+  <rule ref="WordPress.WP.I18n">
+    <properties>
+      <property name="text_domain" type="array">
+        <element value="clir-widgets-bundle"/>
+      </property>
+    </properties>
+  </rule>
+</ruleset>

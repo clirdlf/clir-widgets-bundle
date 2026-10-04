@@ -1,0 +1,38 @@
+name: Prepare draft plugin release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: clir-widgets-bundle
+          path: build
+      - name: Create draft release from checked commit and header version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(sed -nE 's/^ \* Version: ([0-9]+\.[0-9]+\.[0-9]+)$/\1/p' clir-widgets-bundle.php)
+          test -n "$version"
+          if git rev-parse --verify "refs/tags/v$version" >/dev/null 2>&1; then
+            echo "Tag v$version already exists. Increment the plugin header version."
+            exit 1
+          fi
+          gh release create "v$version" build/clir-widgets-bundle.zip \
+            --target "$GITHUB_SHA" --draft --title "CLIR Widgets Bundle $version" \
+            --notes "Plugin ZIP built from $GITHUB_SHA after the quality baseline and WordPress 7.1.2 / PHP 8.3 activation checks passed. Review docs/compatibility-audit.md and complete staging checks before publishing or installing."
