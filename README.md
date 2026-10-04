@@ -4,8 +4,7 @@ A bundle of WordPress widgets for CLIR + DLF sites.
 
 ## Development Setup
 
-Use a local WordPress installation such as MAMP, and link this repository into
-its `wp-content/plugins` directory:
+Use a local WordPress installation such as MAMP, and link this repository into its `wp-content/plugins` directory:
 
 ```
 $ cd /Applications/MAMP/htdocs/wordpress/wp-content/plugins
@@ -14,15 +13,11 @@ $ ln -s ~/projects/clir-widgets-bundle
 
 Then activate the plugin in the WordPress admin panel.
 
-
-Development requires PHP 8.3+, Composer 2, and WP-CLI for packaging. PHP's ZIP
-extension must be enabled. No Gulp, Node.js, or Python build step is required.
+Development requires PHP 8.3+, Composer 2, and WP-CLI for packaging. PHP's ZIP extension must be enabled. No Gulp, Node.js, or Python build step is required.
 
 ## Review and GitHub workflows
 
-See [the PHP 8.3 and WordPress 7.1.2 audit](docs/compatibility-audit.md) for bugs,
-style issues, removal candidates, test limits, and the cleanup order.
-The plugin ships its JavaScript directly and does not compile frontend assets.
+See [the PHP 8.3 and WordPress 7.1.2 audit](docs/compatibility-audit.md) for bugs, style issues, removal candidates, test limits, and the cleanup order. The plugin ships its JavaScript directly and does not compile frontend assets.
 
 Install the development checks with Composer 2 and run:
 
@@ -54,3 +49,57 @@ on PHP 8.3. It uploads a plugin ZIP and full static reports. Manually dispatch
 release. The plugin header version determines the tag; increment it before a new
 release. Publish the draft and install on staging manually. Server deployment needs
 a destination and credentials; it is not configured here.
+
+## Inventory shortcode usage before cleanup
+
+Copy `scripts/inventory-shortcodes.php` to each site's server, or use a local copy
+of each site's database. Run it through WP-CLI in that WordPress installation:
+
+```sh
+wp --path=/path/to/site-one eval-file /path/to/inventory-shortcodes.php > site-one-shortcodes.csv
+wp --path=/path/to/site-two eval-file /path/to/inventory-shortcodes.php > site-two-shortcodes.csv
+```
+
+This read-only script scans published posts, pages, and other published post types
+in batches of 500. It reports exact shortcode tag names, occurrence counts, titles,
+and view/edit links. A per-tag summary, including zero counts, appears in the terminal.
+It never renders shortcodes and works even when this plugin is inactive. For multisite,
+add `--url=https://the-subsite.example` and run once per subsite.
+
+### WordPress Multisite
+
+For two subsites in one network, use the same installation path and select each
+subsite by URL. List the URLs first:
+
+```sh
+wp --path=/path/to/wordpress site list --fields=blog_id,url
+wp --path=/path/to/wordpress --url=https://site-one.example eval-file /path/to/inventory-shortcodes.php > site-one-shortcodes.csv
+wp --path=/path/to/wordpress --url=https://site-two.example eval-file /path/to/inventory-shortcodes.php > site-two-shortcodes.csv
+```
+
+The script uses the selected subsite's posts table; a run without `--url` does not
+scan the entire network. The URL can be a mapped domain, subdomain, or subdirectory.
+If the plugin is network-activated, review every subsite that might use it before
+deleting shared code. Check widgets and template content on each subsite, and check
+shared themes, network plugins, and `mu-plugins` for direct PHP calls or includes.
+Broad `wp db search --all-tables-with-prefix` searches can include tables belonging
+to other subsites, so do not interpret those matches as belonging only to `--url`.
+
+To include drafts, scheduled/private posts, trash, and revisions, pass `all`:
+
+```sh
+wp --path=/path/to/site eval-file /path/to/inventory-shortcodes.php all > all-shortcodes.csv
+```
+
+Matches are review candidates: literal shortcode text inside examples or block JSON
+can appear without executing. Escaped `[[shortcode]]` examples are excluded. The script
+searches `post_content`; it does not scan custom fields, widget options, plugin tables,
+or PHP templates. Published reusable blocks and database-stored templates are included
+if their status is `publish`, even if they are not currently referenced on a page.
+
+Before removing a zero-count feature, also check Appearance > Widgets (including
+inactive widgets), Site Editor templates/patterns, and builder/custom-field data. For
+a broader database search, use `wp db search '[clir_map' --all-tables-with-prefix`
+(substitute each tag). Search installed themes and other plugins for shortcode tags,
+callback names, direct file includes, and script enqueues. Replace live usages on staging
+before unregistering a shortcode; then review the affected pages and widget areas.

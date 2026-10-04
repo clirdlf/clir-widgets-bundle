@@ -14,7 +14,7 @@ jobs:
     name: PHP 8.3 quality baseline
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
@@ -53,7 +53,7 @@ jobs:
           --health-cmd="mysqladmin ping --silent"
           --health-interval=10s --health-timeout=5s --health-retries=10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
@@ -74,7 +74,7 @@ jobs:
         run: |
           wp plugin install "$GITHUB_WORKSPACE/build/clir-widgets-bundle.zip" --activate --path=/tmp/clir-wordpress
           wp eval-file "$GITHUB_WORKSPACE/tests/wp-smoke.php" --path=/tmp/clir-wordpress
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: clir-widgets-bundle
           path: build/clir-widgets-bundle.zip
