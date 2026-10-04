@@ -12,7 +12,15 @@
  * @return array Updated initialization settings.
  */
 function add_iframe( $init_array ) {
-	$init_array['extended_valid_elements'] = 'iframe[id|class|title|style|align|frameborder|height|longdesc|marginheight|marginwidth|name|scrolling|src|width]';
+	$existing = $init_array['extended_valid_elements'] ?? '';
+	$elements = is_string( $existing ) ? explode( ',', $existing ) : array();
+	foreach ( $elements as $element ) {
+		if ( preg_match( '/^[+-]?iframe(?:\[|$)/i', trim( $element ) ) ) {
+			return $init_array;
+		}
+	}
+	$elements[]                            = 'iframe[id|class|title|style|align|frameborder|height|longdesc|marginheight|marginwidth|name|scrolling|src|width]';
+	$init_array['extended_valid_elements'] = implode( ',', array_filter( $elements ) );
 	return $init_array;
 }
 // Preserve iframe elements in the visual editor.

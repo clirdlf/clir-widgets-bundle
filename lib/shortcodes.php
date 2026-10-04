@@ -6,6 +6,35 @@
  */
 
 /**
+ * Normalize a shortcode value without converting arrays or objects to strings.
+ *
+ * @param mixed $value Attribute or content value.
+ * @return string Scalar text, or an empty string.
+ */
+function clir_shortcode_text( $value ) {
+	return is_scalar( $value ) ? (string) $value : '';
+}
+
+/**
+ * Validate a positive pixel dimension or an optional percentage.
+ *
+ * @param mixed  $value         Supplied dimension.
+ * @param string $fallback      Value used when invalid.
+ * @param bool   $allow_percent Whether percentages are supported.
+ * @return string Valid dimension or the fallback.
+ */
+function clir_shortcode_dimension( $value, $fallback = '', $allow_percent = false ) {
+	$value = trim( clir_shortcode_text( $value ) );
+	if ( preg_match( '/^[0-9]{1,5}$/', $value ) && (int) $value > 0 && (int) $value <= 10000 ) {
+		return (string) (int) $value;
+	}
+	if ( $allow_percent && preg_match( '/^([0-9]{1,3})%$/', $value, $matches ) && (int) $matches[1] > 0 && (int) $matches[1] <= 100 ) {
+		return (int) $matches[1] . '%';
+	}
+	return $fallback;
+}
+
+/**
  * Used in DLF theme; couldn't find what plugin contained this so I made one.
  * Updated for Bootstrap
  *
@@ -40,9 +69,14 @@ function iframe( $atts ) {
 		$atts
 	);
 
-	$iframe = '<iframe src="' . $a['src'] . '"  title="' . $a['title'] . '" width="' . $a['width'] . '" height="' . $a['height'] . '" allow="' . $a['allow'] . '"></iframe>';
+	$src = esc_url( trim( clir_shortcode_text( $a['src'] ) ), array( 'http', 'https' ) );
+	if ( '' === $src ) {
+		return '';
+	}
+	$width  = clir_shortcode_dimension( $a['width'], '800', true );
+	$height = clir_shortcode_dimension( $a['height'], '600', true );
 
-	return $iframe;
+	return '<iframe src="' . $src . '" title="' . esc_attr( clir_shortcode_text( $a['title'] ) ) . '" width="' . esc_attr( $width ) . '" height="' . esc_attr( $height ) . '" allow="' . esc_attr( sanitize_text_field( clir_shortcode_text( $a['allow'] ) ) ) . '"></iframe>';
 }
 
 /**
@@ -69,14 +103,33 @@ function image_frame( $attr, $content = null ) {
 		$attr
 	);
 
-	// Reset image call.
-	$pattern = '/^(.*).(jpg|png|jpeg)$/';
-	preg_match( $pattern, $content, $matches );
-	$thumb = $matches[1] . '-150x150.' . $matches[2];
+	$src  = esc_url_raw( trim( clir_shortcode_text( $content ) ), array( 'http', 'https' ) );
+	$path = wp_parse_url( $src, PHP_URL_PATH );
+	if ( '' === $src || ! is_string( $path ) || ! preg_match( '/\.(?:jpe?g|png|gif|webp|avif)$/i', $path ) ) {
+		return '';
+	}
 
-	$image  = '<figure style="max-width:' . $a['width'] . 'px" class="wp-caption alignleft">';
-	$image .= '<img class="' . $a['style'] . '" src="' . $thumb . '" title="' . $a['title'] . '" alt="' . $a['alt'] . '" width="' . $a['width'] . '" height="' . $a['height'] . '" />';
-	$image .= '<figcaption class="wp-caption-text">' . $a['caption'] . '</figcaption>';
+	// Resolve real media sizes; keep the original URL when no attachment is found.
+	$attachment_id = attachment_url_to_postid( preg_replace( '/[?#].*$/', '', $src ) );
+	$thumbnail     = $attachment_id ? wp_get_attachment_image_src( $attachment_id, 'thumbnail' ) : false;
+	if ( $thumbnail ) {
+		$src = $thumbnail[0];
+	}
+	$width   = clir_shortcode_dimension( $a['width'] );
+	$height  = clir_shortcode_dimension( $a['height'] );
+	$classes = array_map( 'sanitize_html_class', preg_split( '/\s+/', trim( clir_shortcode_text( $a['style'] ) ) ) );
+	$style   = '' !== $width ? ' style="max-width:' . esc_attr( $width ) . 'px"' : '';
+
+	$image  = '<figure' . $style . ' class="wp-caption alignleft">';
+	$image .= '<img class="' . esc_attr( implode( ' ', $classes ) ) . '" src="' . esc_url( $src, array( 'http', 'https' ) ) . '" title="' . esc_attr( clir_shortcode_text( $a['title'] ) ) . '" alt="' . esc_attr( clir_shortcode_text( $a['alt'] ) ) . '"';
+	if ( '' !== $width ) {
+		$image .= ' width="' . esc_attr( $width ) . '"';
+	}
+	if ( '' !== $height ) {
+		$image .= ' height="' . esc_attr( $height ) . '"';
+	}
+	$image .= ' />';
+	$image .= '<figcaption class="wp-caption-text">' . esc_html( clir_shortcode_text( $a['caption'] ) ) . '</figcaption>';
 	$image .= '</figure>';
 	return $image;
 }
@@ -110,11 +163,11 @@ function deadline( $attr ) {
  * @return string An obfuscated email address
  */
 function hide_email( $atts, $content = null ) {
-	// Guard for accidental wrap.
+	$content = trim( clir_shortcode_text( $content ) );
 	if ( ! is_email( $content ) ) {
-		return;
+		return '';
 	}
-	return '<a href="mailto:' . antispambot( $content ) . '">' . antispambot( $content ) . '</a>';
+	return '<a href="' . esc_attr( 'mailto:' . antispambot( $content ) ) . '">' . esc_html( antispambot( $content ) ) . '</a>';
 }
 
 /**

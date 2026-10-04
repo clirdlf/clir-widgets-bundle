@@ -35,4 +35,4 @@ jobs:
           fi
           gh release create "v$version" build/clir-widgets-bundle.zip \
             --target "$GITHUB_SHA" --draft --title "CLIR Widgets Bundle $version" \
-            --notes "Plugin ZIP built from $GITHUB_SHA after the quality baseline and WordPress 7.1.2 / PHP 8.3 activation checks passed. Review docs/compatibility-audit.md and complete staging checks before publishing or installing."
+            --notes "Plugin ZIP built from $GITHUB_SHA after quality, WordPress 7.1.2, multisite and controlled browser checks on PHP 8.3 and 8.5 passed. Review docs/compatibility-audit.md and complete staging checks before publishing or installing."

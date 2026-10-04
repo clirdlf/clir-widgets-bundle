@@ -15,7 +15,7 @@
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true
     },
-    "platform": { "php": "8.3.0" },
+    "platform": { "php": "8.5.0" },
     "sort-packages": true
   },
   "scripts": {
@@ -25,6 +25,10 @@
     "check:compatibility": "@php scripts/check-standards.php compatibility",
     "check": ["@test", "@check:standards", "@check:compatibility"],
     "test": "@php tests/quality-gate.php",
+    "test:wordpress": "@php scripts/run-wordpress-test.php tests/wp-smoke.php",
+    "test:multisite": "@php scripts/run-wordpress-test.php tests/multisite.php",
+    "test:browser-fixture": "@php scripts/run-wordpress-test.php tests/browser-fixture.php",
+    "test:browser": "@php tests/browser.php",
     "baseline:standards": "@php scripts/check-standards.php standards --update-baseline",
     "baseline:compatibility": "@php scripts/check-standards.php compatibility --update-baseline",
     "package": [

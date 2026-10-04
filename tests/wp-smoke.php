@@ -1,9 +1,18 @@
 <?php
 /** Run with wp eval-file after installing and activating the plugin. */
+require_once __DIR__ . '/bootstrap.php';
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 if ( ! is_plugin_active( 'clir-widgets-bundle/clir-widgets-bundle.php' ) ) {
     throw new RuntimeException( 'Plugin was not activated.' );
 }
+if ( CLIR_WIDGETS_PLUGIN_URL !== plugin_dir_url( WP_PLUGIN_DIR . '/clir-widgets-bundle/clir-widgets-bundle.php' ) ) {
+    throw new RuntimeException( 'Plugin asset URL contains an incorrect path.' );
+}
+
+require __DIR__ . '/shortcode-risks.php';
+require __DIR__ . '/shortcode-parsing.php';
+require __DIR__ . '/media.php';
+require __DIR__ . '/excerpt-edge-cases.php';
 
 if ( '<div class="clearfix visible-xs-block"></div>' !== do_shortcode( '[clearboth]' ) ) {
     throw new RuntimeException( 'Clearboth shortcode failed.' );

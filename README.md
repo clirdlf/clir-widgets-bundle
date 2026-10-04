@@ -44,11 +44,40 @@ your checkout directory has a different name. Each run replaces the previous ZIP
 and verifies that every runtime file is present and development files are excluded.
 
 GitHub Actions runs lint, both baselines, and a WordPress 7.1.2 activation smoke test
-on PHP 8.3. It uploads a plugin ZIP and full static reports. Manually dispatch
+on PHP 8.3 and 8.5. Integration checks cover shortcode parsing, real media,
+excerpts, network activation, two subsites, and a controlled headless Chrome page.
+It uploads a plugin ZIP, browser results, and full static reports. Manually dispatch
 **Prepare draft plugin release** to rerun checks and attach the tested ZIP to a draft
 release. The plugin header version determines the tag; increment it before a new
 release. Publish the draft and install on staging manually. Server deployment needs
 a destination and credentials; it is not configured here.
+
+### WordPress integration tests
+
+Use a **disposable** WordPress installation with this plugin activated. These
+tests create posts, uploads, and subsites, then clean them up. They require PHP's
+GD extension, the full WP-CLI bundle, and explicit `CLIR_TEST_ENV=1`. They convert
+unsuppressed PHP warnings and deprecations to exceptions during test execution.
+`composer test` remains the database-free baseline-checker suite.
+
+```sh
+CLIR_TEST_ENV=1 composer test:wordpress -- --path=/path/to/disposable-wordpress
+
+# On a disposable subdirectory network with the plugin network activated:
+CLIR_TEST_ENV=1 composer test:multisite -- --path=/path/to/disposable-network
+
+# Generate actual shortcode HTML, then check it in headless Chrome:
+CLIR_TEST_ENV=1 composer test:browser-fixture -- --path=/path/to/disposable-wordpress
+CHROME_BIN=google-chrome composer test:browser
+```
+
+The Composer runner uses the installed WP-CLI bundle rather than the development
+framework under `vendor/bin`. Set `WP_CLI_BIN` if the bundle is not on `PATH`.
+Set `CHROME_BIN` to Chrome's executable path on macOS or other systems. Browser
+checks start a temporary server on `127.0.0.1:8081` and use an isolated profile;
+results and logs are saved under `build/browser/`. They verify image loading and
+sizing, caption text, iframe loading/dimensions, and email links. Actual DLF theme
+appearance and production pages still require staging review.
 
 ## Inventory shortcode usage before cleanup
 
@@ -57,6 +86,14 @@ ID. It escapes the link URL and translated label, and replaces only the default
 automatic-excerpt suffix. Manual excerpts, short excerpts, and other custom
 suffixes are preserved. Themes that call `wp_trim_excerpt()` directly bypass this
 customization; check active templates before deployment.
+
+Retained shortcodes escape URLs, attributes, and caption text. Iframes accept
+HTTP/HTTPS URLs and dimensions of 1–10,000 pixels or 1–100%; invalid dimensions
+fall back to 800 by 600. Image dimensions accept pixels only, and invalid values
+are omitted. `image_frame` resolves registered attachment thumbnails, falling
+back to the original image URL; captions display plain text. Review existing
+caption markup and image sizing on staging. Missing or invalid image/email
+content produces empty output.
 
 The October 2026 network report found references to `clearboth`, `iframe`, `email`,
 `clir_map`, and `image_frame`. The map shortcode and its JavaScript were subsequently

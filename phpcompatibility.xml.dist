@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<ruleset name="CLIR PHP 8.3 compatibility">
-  <description>Check exactly PHP 8.3, including WordPress polyfills.</description>
+<ruleset name="CLIR PHP 8.3–8.5 compatibility">
+  <description>Check PHP 8.3 through 8.5, including WordPress polyfills.</description>
   <file>clir-widgets-bundle.php</file>
   <file>lib</file>
   <arg name="extensions" value="php"/>
   <arg value="s"/>
-  <config name="testVersion" value="8.3"/>
+  <config name="testVersion" value="8.3-8.5"/>
   <rule ref="PHPCompatibilityWP"/>
 </ruleset>

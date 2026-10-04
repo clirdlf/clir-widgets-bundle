@@ -14,14 +14,14 @@
  * @package CLIR_Widgets_Bundle
  */
 
+// Stop direct requests before calling WordPress functions.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 define( 'CLIR_WIDGETS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
-define( 'CLIR_WIDGETS_PLUGIN_URL', pluginS_URL( __FILE__ ) );
+define( 'CLIR_WIDGETS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/filters.php';
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/shortcodes.php';
 require_once CLIR_WIDGETS_PLUGIN_PATH . 'lib/overrides.php';
-
-// Block direct requests.
-if ( ! defined( 'ABSPATH' ) ) {
-	die( -1 );
-}
