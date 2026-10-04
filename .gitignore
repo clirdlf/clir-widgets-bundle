@@ -4,3 +4,6 @@ temp/
 vendor/
 build/
 __pycache__/
+report/
+.DS_Store
+scratch.md
