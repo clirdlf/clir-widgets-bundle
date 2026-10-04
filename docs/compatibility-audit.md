@@ -43,10 +43,10 @@ Locations below use function names rather than line numbers so formatting change
 
 | Priority | Location | Trigger and resulting behavior | Recommended change |
 | --- | --- | --- | --- |
-| High | `lib/shortcodes.php`: `iframe()`, `image_frame()` | Attributes and content enter URLs, HTML attributes, CSS, and captions without context-appropriate escaping. Quotes or markup can break output or introduce executable markup; exploitability depends on who can supply content. | Validate dimensions and supported values; use URL, attribute, and text escaping. Allow HTML only where intentionally supported. Replace `extract()` with explicit attribute access. |
+| High | `lib/shortcodes.php`: `iframe()`, `image_frame()` | Attributes and content enter URLs, HTML attributes, CSS, and captions without context-appropriate escaping. Quotes or markup can break output or introduce executable markup; exploitability depends on who can supply content. | Validate dimensions and supported values; use URL, attribute, and text escaping. Allow HTML only where intentionally supported. `extract()` has been replaced with explicit attribute access. |
 | Medium | `lib/shortcodes.php`: `image_frame()` | Missing content or a nonmatching URL leaves regex captures undefined. The regex uses an unescaped dot and only accepts lowercase JPEG/PNG suffixes. Thumbnail filenames are guessed rather than resolved. | Normalize content, check matches, and prefer attachment metadata/sizes. Handle query strings, unsupported formats, and missing thumbnails gracefully. |
 | Medium | `clir-widgets-bundle.php`: initialization | WordPress API calls and includes run before the direct-request guard. `CLIR_WIDGETS_PLUGIN_URL` passes `__FILE__` as a URL path instead of the plugin-file argument. | Put the `ABSPATH` guard before initialization and use `plugin_dir_url(__FILE__)`. The mixed-case function name itself is valid PHP. The URL constant currently has no local consumers after widget removal. |
-| Medium | `lib/filters.php`: `wpdocs_excerpt_more()` | The generated permalink is not escaped and the translation uses the placeholder domain `textdomain`. It derives the post ID from global context, which can be wrong when an excerpt is generated for another post. | Escape output, use the plugin text domain, and verify post context in actual templates before retaining this customization. |
+| Medium | `lib/filters.php`: `wpdocs_excerpt_more()` | The generated permalink is not escaped. It derives the post ID from global context, which can be wrong when an excerpt is generated for another post. | Escape output and verify post context in actual templates before retaining this customization. The translation now uses the plugin text domain. |
 | Medium | `lib/overrides.php`: `add_iframe()` | The TinyMCE filter replaces existing `extended_valid_elements`, potentially discarding another extension's settings. | Merge existing configuration if still needed. Confirm Classic Editor usage; this setting does not replace server-side HTML sanitization. |
 | Low | `lib/shortcodes.php`: `hide_email()` | Invalid or empty content returns null rather than a string. | Normalize callback input and return an empty string for invalid addresses. Test valid and invalid content. |
 
@@ -93,7 +93,7 @@ Before a production upgrade, extend the CI quality and WordPress jobs to test bo
 
 `clir_map` has one stored post/page reference: the DLF page titled **Map**, post ID **14088**. It therefore remains registered.
 
-The PHP callback loads an HTTP spiderfier script; `js/map.js` requests HTTP tiles. HTTPS pages can block these resources. The map declares only Leaflet as a dependency while its JavaScript also references jQuery, marker clustering, spiderfier, and global `dlf` data. It ignores the supplied `data` attribute and localized `layer`, uses a fixed element ID, and does not support multiple instances.
+The PHP callback loads an HTTP spiderfier script; `js/map.js` requests HTTP tiles. HTTPS pages can block these resources. Map dependencies now explicitly include jQuery, Leaflet, map data, clustering, and spiderfier, with footer loading. Pinned libraries have release versions; unpinned remote resources use the callback file's modification time as a cache revision, not as an upstream release version. The local map script uses its own modification time. Changes to remote data alone do not change those local cache revisions. The map still ignores the supplied `data` attribute and localized `layer`, uses a fixed element ID, and does not support multiple instances.
 
 The spiderfier click listener references undefined `popup`, and no markers are added to the spiderfier. `fitBounds()` has no empty-dataset guard. Remote organization and location properties are inserted into popup HTML without escaping. Review whether spiderfier is needed alongside clustering, use HTTPS assets and explicit dependencies, validate data, and test empty datasets and multiple maps before deployment.
 
@@ -110,7 +110,7 @@ The spiderfier click listener references undefined `popup`, and no markers are a
 | `excerpt_more` customization | User reports the callback attached across the site list; actual frontend use remains unverified. | Observe uncached frontend requests and inspect rendered excerpts. Attachment alone does not prove visible use. |
 | TinyMCE iframe override | Still attached to `tiny_mce_before_init`. | Confirm whether any sites still use the Classic Editor and need this setting. |
 
-Dormant utility bugs remain relevant only if external callers use them: `random_image()` can pass an empty array to `array_rand()` and throw on PHP 8; `get_thumb()` dereferences a missing PDF and returns incomplete link markup; the excerpt-length helper ignores its length; `local_debug()` echoes through `var_dump()` instead of returning the dump.
+Dormant utility bugs remain relevant only if external callers use them: `random_image()` can pass an empty array to `array_rand()` and throw on PHP 8; `get_thumb()` dereferences a missing PDF and returns incomplete link markup; the excerpt-length helper ignores its length. `local_debug()` now returns escaped JSON inside a preformatted wrapper without printing directly. This changes its diagnostic format from the previous dump behavior.
 
 ## Current quality results
 
@@ -118,8 +118,8 @@ Local checks after cleanup:
 
 | Check | Result |
 | --- | --- |
-| WordPress standards | **Fail:** 419 errors and 93 warnings, 512 total; 453 marked fixable |
-| Standards baseline gate | **Fail:** 50 findings beyond the existing per-message budgets |
+| WordPress standards | Pass: zero errors and zero warnings |
+| Standards baseline gate | Pass: zero findings; baseline is empty |
 | PHPCompatibilityWP targeting PHP 8.3 | Pass: zero static findings |
 | Additional PHPCompatibilityWP scan targeting PHP 8.3–8.5 | Pass: zero static findings in runtime and development code |
 | Quality-gate regression tests | Pass: all nine |
@@ -129,9 +129,9 @@ Local checks after cleanup:
 | WordPress 7.1.2 / PHP 8.3 activation and browser rendering | Not run locally |
 | WordPress 7.1.2 / PHP 8.5 activation and Ubuntu PHP-FPM | Not run locally |
 
-The 50 over-baseline findings are in `lib/utilities.php` (38), `lib/filters.php` (11), and `lib/shortcodes.php` (one). They concern spacing, indentation, brace placement, comment spacing, and alignment. The original scan had 2,321 standards findings; the current count is 512. Findings are not distinct bugs.
+Formatting, documentation, translation domains, parameter usage, assignment placement, and map enqueue warnings have been corrected. The excerpt filter accepts no hook arguments because it replaces the suffix; the unregistered deadline helper no longer accepts an unused content parameter. The original scan had 2,321 standards findings; the current count is zero. A clean standards scan does not resolve the manual runtime findings above.
 
-The current standards budget totals 607 findings. A smaller total scan count can still fail because budgets are keyed by file, sniff, severity, and message: unused budgets cannot offset new findings elsewhere. Line shifts do not invalidate budgets. Identical violations within the same key can replace one another undetected, so review diffs as well as counts. Do not regenerate the baseline just to accept the 50 regressions. Removed-file budgets have been pruned while unrelated edits were preserved.
+Both baselines are now empty after the clean scans. Any new finding fails the gate. Baselines are keyed by file, sniff, severity, and message; line shifts do not invalidate them. Do not regenerate them merely to accept regressions.
 
 Run `composer check` for regression tests and both gates. Since it stops at a failing standards gate, run `composer check:compatibility` separately when needed. Full reports are written to `build/standards-report.json` and `build/compatibility-report.json`. Fixable findings require diff review; generic function names, escaping, translation domains, and runtime behavior also need manual attention.
 
@@ -139,7 +139,7 @@ Run `composer check` for regression tests and both gates. Since it stops at a fa
 
 The CI workflow configures PHP 8.3 quality checks and a separate WordPress 7.1.2/MySQL activation job. The smoke test verifies activation, renders `clearboth` and `email`, checks callable registration for all five retained tags, and checks that the eleven retired tags are absent. It no longer expects widget registrations.
 
-Smoke coverage does not establish iframe/image/map rendering, external-service behavior, theme compatibility, or multisite compatibility. CI has not been executed as part of this local update, and the current standards gate would fail with this working tree.
+Smoke coverage does not establish iframe/image/map rendering, external-service behavior, theme compatibility, or multisite compatibility. CI has not been executed as part of this local update; local standards and compatibility gates pass.
 
 `composer package` uses WP-CLI's Composer-installed `dist-archive` command and verifies the ZIP against remaining runtime files. Packaging needs WP-CLI and PHP's ZIP extension, but no WordPress database. Reports, tests, development dependencies, scratch files, and metadata are excluded. The archive extracts into `clir-widgets-bundle`.
 
@@ -147,7 +147,7 @@ The release workflow runs CI and creates a draft GitHub release from the checked
 
 ## Next cleanup steps
 
-1. Correct the 50 formatting regressions without increasing baseline budgets.
+1. Keep both baselines empty and reject new standards or compatibility findings.
 2. Establish usage of the remaining helpers, People post type, excerpt filter, and TinyMCE override; remove confirmed unused paths.
 3. Fix retained shortcode escaping and image input handling.
 4. Repair or replace the DLF map integration and test it on HTTPS staging.

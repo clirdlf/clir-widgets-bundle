@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Excerpt filters.
  *
@@ -11,14 +10,13 @@
  *
  * @see https://developer.wordpress.org/reference/functions/the_excerpt/
  *
- * @param string $more "Read more" excerpt string.
  * @return string (Maybe) modified "read more" excerpt string.
  */
-function wpdocs_excerpt_more( $more ) {
+function wpdocs_excerpt_more() {
 	return sprintf(
 		'<a class="read-more" href="%1$s"> %2$s</a>',
 		get_permalink( get_the_ID() ),
-		__( 'Read More', 'textdomain' )
+		__( 'Read More', 'clir-widgets-bundle' )
 	);
 }
-add_filter( 'excerpt_more', 'wpdocs_excerpt_more' );
+add_filter( 'excerpt_more', 'wpdocs_excerpt_more', 10, 0 );

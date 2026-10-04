@@ -1,7 +1,14 @@
 <?php
+/**
+ * People custom post type.
+ *
+ * @package CLIR_Widgets_Bundle
+ */
 
 /**
- * Custom post types for People
+ * Register the People custom post type.
+ *
+ * @return void
  */
 function clir_register_post_types() {
 	$defaults = array(
@@ -16,8 +23,8 @@ function clir_register_post_types() {
 	$post_types = array(
 		'people' => array(
 			'labels'  => array(
-				'name'          => __( 'People' ),
-				'singular_name' => __( 'Person' ),
+				'name'          => __( 'People', 'clir-widgets-bundle' ),
+				'singular_name' => __( 'Person', 'clir-widgets-bundle' ),
 			),
 			'rewrite' => array( 'slug' => 'people' ),
 		),
@@ -29,4 +36,4 @@ function clir_register_post_types() {
 	}
 }
 
-	add_action( 'init', 'clir_register_post_types' );
+add_action( 'init', 'clir_register_post_types' );
