@@ -4,7 +4,6 @@
   <file>clir-widgets-bundle.php</file>
   <file>lib</file>
   <file>custom-post-types</file>
-  <file>partials</file>
   <arg name="extensions" value="php"/>
   <arg value="s"/>
   <rule ref="WordPress"/>

@@ -5,7 +5,7 @@ if ( ! is_plugin_active( 'clir-widgets-bundle/clir-widgets-bundle.php' ) ) {
     throw new RuntimeException( 'Plugin was not activated.' );
 }
 
-foreach ( array( 'Social_Media_Links', 'Informz_Tracking_Widget' ) as $widget_class ) {
+foreach ( array( 'Social_Media_Links' ) as $widget_class ) {
     if ( ! isset( $GLOBALS['wp_widget_factory']->widgets[ $widget_class ] ) ) {
         throw new RuntimeException( 'Widget not registered: ' . $widget_class );
     }

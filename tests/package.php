@@ -7,7 +7,7 @@ if ( true !== $zip->open( $root . '/build/clir-widgets-bundle.zip', ZipArchive::
 }
 
 $expected = array( 'clir-widgets-bundle/clir-widgets-bundle.php' );
-foreach ( array( 'lib', 'js', 'custom-post-types', 'partials' ) as $directory ) {
+foreach ( array( 'lib', 'js', 'custom-post-types' ) as $directory ) {
 	$files = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $root . '/' . $directory, FilesystemIterator::SKIP_DOTS ) );
 	foreach ( $files as $file ) {
 		if ( $file->isFile() && in_array( $file->getExtension(), array( 'php', 'js', 'jpg', 'jpeg', 'png', 'gif' ), true ) ) {
