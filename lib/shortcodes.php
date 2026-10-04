@@ -5,9 +5,6 @@
  * @package CLIR_Widgets_Bundle
  */
 
-// Load the legacy utility functions.
-require_once 'utilities.php';
-
 /**
  * Used in DLF theme; couldn't find what plugin contained this so I made one.
  * Updated for Bootstrap

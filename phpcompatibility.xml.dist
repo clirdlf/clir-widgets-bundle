@@ -3,7 +3,6 @@
   <description>Check exactly PHP 8.3, including WordPress polyfills.</description>
   <file>clir-widgets-bundle.php</file>
   <file>lib</file>
-  <file>custom-post-types</file>
   <arg name="extensions" value="php"/>
   <arg value="s"/>
   <config name="testVersion" value="8.3"/>

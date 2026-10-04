@@ -1,6 +1,6 @@
 # PHP 8.3–8.5 and WordPress 7.1.2 code audit
 
-Updated October 4, 2026 after the shortcode, JavaScript, widget, partial, and helper cleanup. The plugin now registers five shortcodes and two filters; it registers no widgets. The main remaining risks are unescaped shortcode output, fragile image handling, and the legacy map integration.
+Updated October 4, 2026 for plugin version **2.0.0**, after the removal and standards cleanup. The plugin now registers five shortcodes and two filters; it registers no widgets. WordPress standards and PHP 8.3–8.5 static compatibility scans are clean. The main remaining risks are unescaped shortcode output, fragile image handling, and the legacy map integration.
 
 ## Scope and evidence
 
@@ -8,9 +8,9 @@ The deployment analysis now includes PHP 8.5 for Ubuntu 26.04 LTS: Ubuntu's [def
 
 WordPress's [compatibility table lists PHP 8.5 support for the 7.1 series](https://make.wordpress.org/core/handbook/references/php-compatibility-and-wordpress-versions/). Core support does not establish compatibility of this plugin, other network plugins, or installed themes.
 
-The current review covers the six remaining runtime PHP files, `js/map.js`, development checks, and GitHub workflows. Evidence also includes the supplied inventory exports for 26 network sites and the user's sidebar-placement results. No production database was modified. External themes, plugins, custom fields, or live rendering were not comprehensively inspected.
+The current review covers the four remaining runtime PHP files, `js/map.js`, development checks, and GitHub workflows. Evidence also includes the supplied inventory exports for 26 network sites and the user's sidebar-placement results. No production database was modified. External themes, plugins, custom fields, or live rendering were not comprehensively inspected.
 
-The main file loads `lib/filters.php`, `lib/shortcodes.php`, and `lib/overrides.php`. The shortcodes file loads `lib/utilities.php`. `custom-post-types/people.php` remains in the package but is not loaded by the main plugin.
+The main file loads `lib/filters.php`, `lib/shortcodes.php`, and `lib/overrides.php`. The unused `lib/utilities.php` module and its include have been removed. `custom-post-types/people.php`, which was not loaded by the main plugin, has also been removed. Quality rulesets and package verification no longer require its retired directory.
 
 ## Network usage and completed removals
 
@@ -33,6 +33,7 @@ The following cleanup is complete:
 - Removed `Informz_Tracking_Widget`, `DLME_Project_Widget`, and `Social_Media_Links`, including applicable includes and registrations. The now-empty widget-loader function was removed.
 - The user's network check found no active sidebar placements for `Social_Media_Links`: 19 instances were inactive across three sites (12 on DLF, four on CLIR, three on OR2021). This does not audit external direct PHP calls. Saved widget options were not deleted.
 - Removed `clir_category_link`, `clir_format_phone` and its helper file, and the unused `partials/report.php`. Quality rulesets and package verification no longer require the retired `partials/` directory.
+- Removed `lib/utilities.php` and all five legacy helpers, and removed `custom-post-types/people.php`. This code cleanup does not delete stored People records or widget settings. External includes or helper callers were not audited on the servers.
 - Removed Gulp/npm build tooling and Python packaging/checker steps. Composer runs PHP quality checks; WP-CLI creates the release archive. A temporary local `package-lock.json` is excluded from distribution.
 
 The inventory script intentionally retains all sixteen historical tags, so future scans can find retired tags in drafts or restored content. These removals were authorized by the user; the published-content inventory does not cover widget options, custom fields, or external template calls.
@@ -74,20 +75,20 @@ The migration review checked these relevant changes against the remaining code:
 | --- | --- |
 | PHP 8.4 deprecates implicitly nullable typed parameters | Remaining callbacks use untyped parameters; their `= null` defaults do not match that deprecated typed declaration. If adding types, declare nullability explicitly. |
 | PHP 8.4 deprecates omitted CSV escape arguments | The inventory script explicitly supplies an empty escape argument to `fputcsv()`. No finding was detected in the development scan. |
-| PHP 8.5 deprecates noncanonical casts, backticks, null array keys, and nonnumeric string increments | No direct use was identified in the reviewed paths, except that the dormant excerpt-length helper increments caller-supplied `$charlength`; nonnumeric string input could hit the increment deprecation. Remove that unused helper or validate its input. |
+| PHP 8.5 deprecates noncanonical casts, backticks, null array keys, and nonnumeric string increments | No direct use was identified in the remaining runtime paths. The dormant excerpt-length helper that incremented caller-supplied `$charlength` has been removed. |
 | PHP 8.5 warns about non-array destructuring and out-of-range numeric casts | No matching direct operation was identified in the remaining runtime code. Inputs and operations in external plugins/themes still require their own review. |
 | PHP 8.5 integrates OPcache into the PHP binary | When migrating server configuration, check for a carried-over `zend_extension=opcache.so` directive, which now emits a warning. This is a server configuration check; no such configuration is stored here. |
 
 Sources: PHP's [8.4 deprecations](https://www.php.net/manual/en/migration84.deprecated.php), [8.5 deprecations](https://www.php.net/manual/en/migration85.deprecated.php), and [8.5 incompatible changes](https://www.php.net/manual/en/migration85.incompatible.php).
 
-Targeted probes on PHP 8.5.11 confirmed two existing failures:
+Targeted probes on PHP 8.5.11 during the review confirmed these behaviors:
 
 - `image_frame()` with omitted content emits a null-to-string deprecation from `preg_match()` and undefined array-key warnings for the missing captures. The probe supplied a minimal `shortcode_atts()` substitute; it tested the helper's PHP behavior, not WordPress rendering. This is a pre-existing defect still present on PHP 8.5.
-- `random_image()` with a nonexistent category throws `ValueError` because `array_rand()` receives an empty array. It has no remaining local callers, so this is a dormant helper defect unless external code calls it.
+- Before removal, `random_image()` with a nonexistent category threw `ValueError` because `array_rand()` received an empty array. The helper and its module have now been removed, eliminating that path from this plugin.
 
 PHP 8.5 did not eliminate the escaping, map, or image issues described elsewhere in this audit. The nine quality-gate regression tests passed under PHP 8.5.11; PHP lint, JavaScript syntax, and ZIP checks also passed during this review. Full WordPress activation, frontend rendering, and Ubuntu PHP-FPM behavior remain untested.
 
-Before a production upgrade, extend the CI quality and WordPress jobs to test both PHP 8.3 and 8.5, widen the compatibility ruleset to `8.3-8.5`, and test staging with `E_ALL`. The Composer platform setting remains `8.3.0`, preserving dependency resolution for the older supported runtime; it is not evidence of PHP 8.5 compatibility. No workflow, dependency lock, baseline, or production configuration was changed for this analysis update.
+Before a production upgrade, extend the CI quality and WordPress jobs to test both PHP 8.3 and 8.5, widen the compatibility ruleset to `8.3-8.5`, and test staging with `E_ALL`. The Composer platform setting remains `8.3.0`, preserving dependency resolution for the older supported runtime; it is not evidence of PHP 8.5 compatibility. The workflows and dependency lock have not been retargeted to PHP 8.5. Both baselines were emptied after the subsequent standards cleanup.
 
 ## Map integration
 
@@ -95,7 +96,7 @@ Before a production upgrade, extend the CI quality and WordPress jobs to test bo
 
 The PHP callback loads an HTTP spiderfier script; `js/map.js` requests HTTP tiles. HTTPS pages can block these resources. Map dependencies now explicitly include jQuery, Leaflet, map data, clustering, and spiderfier, with footer loading. Pinned libraries have release versions; unpinned remote resources use the callback file's modification time as a cache revision, not as an upstream release version. The local map script uses its own modification time. Changes to remote data alone do not change those local cache revisions. The map still ignores the supplied `data` attribute and localized `layer`, uses a fixed element ID, and does not support multiple instances.
 
-The spiderfier click listener references undefined `popup`, and no markers are added to the spiderfier. `fitBounds()` has no empty-dataset guard. Remote organization and location properties are inserted into popup HTML without escaping. Review whether spiderfier is needed alongside clustering, use HTTPS assets and explicit dependencies, validate data, and test empty datasets and multiple maps before deployment.
+The spiderfier click listener references undefined `popup`, and no markers are added to the spiderfier. `fitBounds()` has no empty-dataset guard. Remote organization and location properties are inserted into popup HTML without escaping. Review whether spiderfier is needed alongside clustering, use HTTPS assets, validate data, and test empty datasets and multiple maps before deployment. Dependencies and footer loading are now explicit, but frontend execution has not been verified.
 
 `clearboth` still depends on Bootstrap 3 classes supplied by the theme. Retained output must be checked against each site's actual theme; stored shortcode usage alone does not establish visual compatibility.
 
@@ -103,18 +104,16 @@ The spiderfier click listener references undefined `popup`, and no markers are a
 
 | Candidate | Current evidence | Further check |
 | --- | --- | --- |
-| `custom-post-types/people.php` | Not included by the main plugin; defines the public `people` post type. | Count records across every site, including nonpublished statuses. Search external registrars, includes, queries, templates, and navigation links. Removing registration can hide existing content without deleting it. |
 | `deadline()` | Not registered or called locally; always returns an empty string. | Search external PHP callers before removal. |
-| `lib/utilities.php` functions | No remaining local callers for `the_excerpt_max_charlength`, `get_thumb`, `local_debug`, `clean_category`, or `random_image`; the file is still included. | Search installed themes/plugins for calls and includes. If unused, remove the functions and include together. |
-| Bundled DLF images and `process.sh` | The former `dlf_post` caller is removed. `random_image()` still references the images, although it has no local callers. | Resolve external helper usage before retiring its assets. `process.sh` is already excluded from distribution. |
+| Bundled DLF images and `process.sh` | Both `dlf_post` and `random_image()` have been removed; no remaining local code references the images. | Check external direct asset references before retiring the files. `process.sh` is already excluded from distribution. |
 | `excerpt_more` customization | User reports the callback attached across the site list; actual frontend use remains unverified. | Observe uncached frontend requests and inspect rendered excerpts. Attachment alone does not prove visible use. |
 | TinyMCE iframe override | Still attached to `tiny_mce_before_init`. | Confirm whether any sites still use the Classic Editor and need this setting. |
 
-Dormant utility bugs remain relevant only if external callers use them: `random_image()` can pass an empty array to `array_rand()` and throw on PHP 8; `get_thumb()` dereferences a missing PDF and returns incomplete link markup; the excerpt-length helper ignores its length. `local_debug()` now returns escaped JSON inside a preformatted wrapper without printing directly. This changes its diagnostic format from the previous dump behavior.
+The removed utilities included empty-image-array handling, missing-PDF handling, incomplete link markup, and an ignored excerpt-length argument. Those findings are retired with the module. Sites that directly included the removed files or called their helpers need migration; removing the People registrar does not delete its stored database records.
 
 ## Current quality results
 
-Local checks after cleanup:
+Local checks rerun against the current 2.0.0 working tree on October 4, 2026:
 
 | Check | Result |
 | --- | --- |
@@ -125,11 +124,13 @@ Local checks after cleanup:
 | Quality-gate regression tests | Pass: all nine |
 | Project PHP lint | Pass on PHP 8.5.11 |
 | `js/map.js` syntax | Pass with `node --check` |
-| Release ZIP verification | Pass: 14 runtime files, no development files |
+| Release ZIP verification | Pass: 12 runtime files, no development files |
 | WordPress 7.1.2 / PHP 8.3 activation and browser rendering | Not run locally |
 | WordPress 7.1.2 / PHP 8.5 activation and Ubuntu PHP-FPM | Not run locally |
 
 Formatting, documentation, translation domains, parameter usage, assignment placement, and map enqueue warnings have been corrected. The excerpt filter accepts no hook arguments because it replaces the suffix; the unregistered deadline helper no longer accepts an unused content parameter. The original scan had 2,321 standards findings; the current count is zero. A clean standards scan does not resolve the manual runtime findings above.
+
+Behavioral checks during cleanup confirmed unchanged iframe markup for default and custom attributes using WordPress function substitutes. The debug helper was checked before its later removal. These were targeted PHP checks, not WordPress integration or browser tests. Map scripts now load in the footer; staging must verify that the theme calls `wp_footer()` and that external dependencies load successfully. External PHP callers of changed or removed helpers were not audited.
 
 Both baselines are now empty after the clean scans. Any new finding fails the gate. Baselines are keyed by file, sniff, severity, and message; line shifts do not invalidate them. Do not regenerate them merely to accept regressions.
 
@@ -143,12 +144,12 @@ Smoke coverage does not establish iframe/image/map rendering, external-service b
 
 `composer package` uses WP-CLI's Composer-installed `dist-archive` command and verifies the ZIP against remaining runtime files. Packaging needs WP-CLI and PHP's ZIP extension, but no WordPress database. Reports, tests, development dependencies, scratch files, and metadata are excluded. The archive extracts into `clir-widgets-bundle`.
 
-The release workflow runs CI and creates a draft GitHub release from the checked commit, using the plugin header version (currently `0.1.0`). Publishing and installation remain manual; increment the header before a new release. No server deployment or account-level branch protection was configured. Validate the retained features on staging and keep the preceding plugin archive for rollback.
+The release workflow runs CI and creates a draft GitHub release from the checked commit, using the plugin header version (currently `2.0.0`). Publishing and installation remain manual; increment the header before a new release. No server deployment or account-level branch protection was configured. Validate the retained features on staging and keep the preceding plugin archive for rollback.
 
 ## Next cleanup steps
 
 1. Keep both baselines empty and reject new standards or compatibility findings.
-2. Establish usage of the remaining helpers, People post type, excerpt filter, and TinyMCE override; remove confirmed unused paths.
+2. Establish usage of `deadline()`, the excerpt filter, and the TinyMCE override; remove confirmed unused paths. Check for external references to retired files before rollout.
 3. Fix retained shortcode escaping and image input handling.
 4. Repair or replace the DLF map integration and test it on HTTPS staging.
 5. Add PHP 8.5 CI coverage alongside PHP 8.3, then test WordPress 7.1.2 with Ubuntu 26.04/PHP 8.5 and affected templates across the network before releasing.

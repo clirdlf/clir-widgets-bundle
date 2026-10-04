@@ -3,7 +3,6 @@
   <description>Full WordPress standards; legacy findings are tracked separately.</description>
   <file>clir-widgets-bundle.php</file>
   <file>lib</file>
-  <file>custom-post-types</file>
   <arg name="extensions" value="php"/>
   <arg value="s"/>
   <rule ref="WordPress"/>
