@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+## Description: Run DDEV's full WP-CLI bundle for this WordPress installation
+## Usage: wp [args]
+## Example: "ddev wp core download --version=7.1.2"
+## ExecRaw: true
+## MutagenSync: true
+
+set -euo pipefail
+cd "/var/www/html/${DDEV_DOCROOT}"
+exec /usr/local/bin/wp "$@"

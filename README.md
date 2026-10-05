@@ -4,16 +4,152 @@ A bundle of WordPress widgets for CLIR + DLF sites.
 
 ## Development Setup
 
-Use a local WordPress installation such as MAMP, and link this repository into its `wp-content/plugins` directory:
+Use DDEV for a disposable local WordPress installation. Install a supported
+[Docker provider](https://docs.ddev.com/en/stable/users/install/docker-installation/)
+and [DDEV](https://docs.ddev.com/en/stable/users/install/ddev-installation/), then
+start Docker. DDEV supplies PHP, Composer, WP-CLI, and the database; host PHP and
+WP-CLI are optional for the integration tests.
 
+### Configure DDEV and install WordPress
+
+Run these commands from the repository root. They configure PHP 8.5 and MySQL 8.0,
+matching one CI target, and pin WordPress to 7.1.2. WordPress and uploads live in
+`temp/wordpress/`, which is already ignored by Git and excluded from the ZIP.
+The repository is mounted at `/var/www/html` inside DDEV.
+The project command in `.ddev/commands/web/wp` runs `/usr/local/bin/wp` explicitly:
+DDEV otherwise finds Composer's framework-only `vendor/bin/wp` first, which lacks
+`core` and other installation commands. Keep that project command in your checkout.
+Its `ExecRaw: true` annotation preserves quoted arguments such as site titles;
+`MutagenSync: true` synchronizes files before and after WP-CLI runs.
+
+```sh
+mkdir -p temp/wordpress
+ddev config --project-name=clir-widgets-test --project-type=wordpress \
+  --docroot=temp/wordpress --php-version=8.5 --database=mysql:8.0 \
+  --web-working-dir=/var/www/html
+ddev start
+ddev wp core download --version=7.1.2 --path=/var/www/html/temp/wordpress
+ddev wp core install --path=/var/www/html/temp/wordpress \
+  --url=https://clir-widgets-test.ddev.site --title='CLIR local tests' \
+  --admin_user=ci --admin_password=clir-local-test-only \
+  --admin_email=ci@example.org --skip-email
+ddev launch wp-admin/
 ```
-$ cd /Applications/MAMP/htdocs/wordpress/wp-content/plugins
-$ ln -s ~/projects/clir-widgets-bundle
+
+DDEV manages the local database connection in the WordPress configuration.
+The sample login is `ci` / `clir-local-test-only`, for this disposable installation.
+These provisioning steps follow the [DDEV WordPress quickstart](https://docs.ddev.com/en/stable/users/quickstart/#wordpress).
+
+If `ddev wp` reports that `core` is not registered, confirm the project command
+above is present. You can also bypass command lookup directly:
+
+```sh
+ddev exec /usr/local/bin/wp core download --version=7.1.2 \
+  --path=/var/www/html/temp/wordpress
 ```
 
-Then activate the plugin in the WordPress admin panel.
+### Build, install, and test the plugin
 
-Development requires PHP 8.3+, Composer 2, and WP-CLI for packaging. PHP's ZIP extension must be enabled. No Gulp, Node.js, or Python build step is required.
+Install the release ZIP so local integration tests exercise the same distribution
+as GitHub Actions. Run these commands again after changing plugin code; the
+installed ZIP is a copy and does not update automatically.
+
+```sh
+ddev composer install
+ddev composer check
+ddev composer package
+ddev wp plugin install /var/www/html/build/clir-widgets-bundle.zip \
+  --force --activate --path=/var/www/html/temp/wordpress
+ddev exec env CLIR_TEST_ENV=1 composer test:wordpress -- \
+  --path=/var/www/html/temp/wordpress
+```
+
+The tests require a disposable database: they create and delete posts and uploads.
+`CLIR_TEST_ENV=1` explicitly enables them. DDEV configuration under `.ddev/` is
+excluded from the release ZIP. Keep generated WordPress files and local credentials
+out of Git. The setup requires no Gulp, Node.js, or Python build step.
+
+### Run multisite tests
+
+After the single-site checks, convert this disposable installation to a
+subdirectory network and activate the plugin for the network:
+
+```sh
+ddev wp plugin deactivate clir-widgets-bundle --path=/var/www/html/temp/wordpress
+ddev wp core multisite-convert --title='CLIR local test network' \
+  --path=/var/www/html/temp/wordpress
+ddev wp plugin activate clir-widgets-bundle --network \
+  --path=/var/www/html/temp/wordpress
+ddev exec env CLIR_TEST_ENV=1 composer test:multisite -- \
+  --path=/var/www/html/temp/wordpress
+```
+
+The suite creates two temporary subsites, checks shortcode/excerpt rendering and
+attachment isolation, then deletes them. Run the conversion once; on subsequent
+runs, leave the plugin network activated. After rebuilding the ZIP, reinstall it
+with `--force` and use `plugin activate --network` before rerunning network tests.
+
+### Check both PHP versions
+
+Switch DDEV's PHP version and rerun the checks. This changes the container's PHP,
+not the host's PHP or Composer's configured platform value:
+
+```sh
+ddev config --php-version=8.3
+ddev restart
+ddev composer check
+ddev exec env CLIR_TEST_ENV=1 composer test:multisite -- \
+  --path=/var/www/html/temp/wordpress
+
+# Return to the default local version.
+ddev config --php-version=8.5
+ddev restart
+```
+
+This example assumes the installation has already been converted to multisite.
+Use `test:wordpress` instead if it is still single-site. Version options are
+documented in [DDEV configuration](https://docs.ddev.com/en/stable/users/configuration/config/).
+
+### Run browser checks
+
+Generate the browser fixture inside DDEV, then run the browser test on the host.
+The generated files are shared through `build/browser/`. The existing browser
+runner uses host PHP and Chrome and starts its own server on `127.0.0.1:8081`;
+leave that port free. It does not need a connection to DDEV's database.
+
+```sh
+ddev exec env CLIR_TEST_ENV=1 composer test:browser-fixture -- \
+  --path=/var/www/html/temp/wordpress
+
+# macOS: requires host PHP and Google Chrome.
+CHROME_BIN='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' \
+  php tests/browser.php
+
+# Linux: use Chrome's executable on PATH.
+CHROME_BIN=google-chrome php tests/browser.php
+```
+
+Run the browser command for your operating system. These checks cover a controlled
+page with local image/iframe assets; install the actual DLF theme separately to
+review production layouts. Logs and rendered HTML are saved in `build/browser/`.
+
+### Stop and reset
+
+```sh
+ddev stop
+```
+
+To rebuild the disposable installation from scratch, `ddev delete` removes this
+project's containers and database (with a database snapshot by default). After
+confirming you are in this test repository, remove only `temp/wordpress/` and
+repeat the setup steps. Deleting the DDEV project does not remove those files.
+
+### GitHub Actions
+
+Pushes and pull requests run the existing workflow on PHP 8.3 and 8.5 with MySQL
+8.0 and WordPress 7.1.2. CI installs the ZIP, runs the same integration suites,
+generates the browser fixture, and checks multisite. It provisions its own services
+and does not require DDEV. Local DDEV setup remains a separate developer step.
 
 ## Review and GitHub workflows
 
@@ -78,6 +214,120 @@ checks start a temporary server on `127.0.0.1:8081` and use an isolated profile;
 results and logs are saved under `build/browser/`. They verify image loading and
 sizing, caption text, iframe loading/dimensions, and email links. Actual DLF theme
 appearance and production pages still require staging review.
+
+## Server installation and updates
+
+Deploy the `clir-widgets-bundle.zip` asset from a specific GitHub release. Use the
+same ZIP on staging and production after reviewing affected pages on staging.
+The existing release workflow prepares a draft release after CI passes; server
+deployment is still manual. Publish the reviewed release before distributing it.
+
+Run server commands over SSH as the account permitted to update WordPress plugin
+files. The server needs the full WP-CLI bundle and working WordPress/database
+access; the backup example also uses the `zip` command. CI currently tests
+WordPress 7.1.2 on PHP 8.3 and 8.5. Confirm the server's CLI and web PHP versions
+are appropriate before rollout. Composer, DDEV, and development dependencies are
+not needed on the server to install the release ZIP.
+
+For multisite, replace plugin files once per WordPress installation. Record
+whether the plugin is network activated or active only on selected subsites, and
+preserve that scope. Subsites share the installed plugin directory.
+
+### Transfer and back up
+
+Download the release asset, then upload it to the target server. Replace the
+example SSH account, host, and local download path with your own:
+
+```sh
+# Run on your workstation; transfer to staging first.
+scp /path/to/downloaded/clir-widgets-bundle.zip deploy@wordpress.clir.org:~/
+ssh deploy@wordpress.clir.org
+```
+
+The following commands run in that server SSH session. Adjust the WordPress path
+and release identifier to match the installation and downloaded release. Keep
+backups outside the web document root:
+
+```sh
+CLIR_WP_PATH=/var/www/wordpress.clir.org
+CLIR_RELEASE=v2.0.0
+CLIR_RELEASE_DIR="$HOME/clir-plugin-releases/$CLIR_RELEASE"
+mkdir -p "$CLIR_RELEASE_DIR"
+mv "$HOME/clir-widgets-bundle.zip" "$CLIR_RELEASE_DIR/clir-widgets-bundle.zip"
+
+# For an update, record the current plugin version and activation status.
+wp plugin get clir-widgets-bundle --fields=name,status,version \
+  --path="$CLIR_WP_PATH" > "$CLIR_RELEASE_DIR/before.txt"
+
+# Archive the complete currently installed plugin, including retired files.
+(cd "$CLIR_WP_PATH/wp-content/plugins" && \
+  zip -r "$CLIR_RELEASE_DIR/previous.zip" clir-widgets-bundle)
+```
+
+For a first installation, skip the existing-plugin status and archive commands.
+For per-site activation in multisite, also record `plugin get` output with
+`--url=https://the-subsite.example` for each affected subsite. These examples assume
+the standard `wp-content/plugins` location; adapt the backup path if customized.
+Use a new release directory for each deployment so previous backups are retained.
+
+### Install the release ZIP
+
+```sh
+wp plugin install "$CLIR_RELEASE_DIR/clir-widgets-bundle.zip" \
+  --force --skip-plugins=clir-widgets-bundle --path="$CLIR_WP_PATH"
+```
+
+`--force` replaces the installed plugin files. `--skip-plugins` avoids loading this
+plugin in the installation command; it does not change activation settings.
+See the [WP-CLI installation reference](https://developer.wordpress.org/cli/commands/plugin/install/).
+The replacement writes to the live plugin directory, so use an appropriate
+deployment window. Confirm the intended activation state afterward.
+
+If this is a first installation, or activation needs restoring, run only the
+command matching the intended scope:
+
+```sh
+# Single site, or one selected subsite in a network.
+wp plugin activate clir-widgets-bundle --path="$CLIR_WP_PATH" \
+  --url=https://the-site.example
+
+# Entire network: use only when network activation is intended.
+wp plugin activate clir-widgets-bundle --network --path="$CLIR_WP_PATH"
+```
+
+### Verify the deployment
+
+```sh
+wp plugin get clir-widgets-bundle --fields=name,status,version \
+  --path="$CLIR_WP_PATH"
+```
+
+Confirm the version matches the release and the activation scope matches the
+recorded state. For per-site activation, verify each affected subsite with
+`--url`. Review representative pages using `image_frame`, `iframe`, `email`, and
+automatic excerpts, and inspect PHP logs. Purge affected page/CDN caches through
+the site's normal process. For this cleanup release, also replace the retired
+`[clir_map]` reference on the DLF Map page (post 14088).
+
+The integration suites create and delete posts, uploads, and subsites. Run them
+on disposable test installations; production verification should use existing
+pages and read-only checks.
+
+### Roll back
+
+In the same SSH session, reinstall the saved pre-deployment ZIP:
+
+```sh
+wp plugin install "$CLIR_RELEASE_DIR/previous.zip" \
+  --force --skip-plugins=clir-widgets-bundle --path="$CLIR_WP_PATH"
+wp plugin get clir-widgets-bundle --fields=name,status,version \
+  --path="$CLIR_WP_PATH"
+```
+
+Restore the recorded activation scope if necessary, purge affected caches, and
+check pages and logs again. This restores plugin code only; it does not undo
+content, option, or database changes. Keep the pre-deployment archive until the
+new release has been verified across the network.
 
 ## Inventory shortcode usage before cleanup
 

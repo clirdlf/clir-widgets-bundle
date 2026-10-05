@@ -1,6 +1,7 @@
 .distignore
 .git
 .github
+/.ddev
 .gitignore
 .agents
 .codex
