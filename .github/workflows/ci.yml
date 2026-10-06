@@ -35,7 +35,7 @@ jobs:
       - name: Check PHP compatibility against reviewed baseline
         if: '!cancelled()'
         run: composer check:compatibility
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: '!cancelled()'
         with:
           name: quality-reports-php-${{ matrix.php }}
@@ -99,7 +99,7 @@ jobs:
           wp core multisite-convert --title='CLIR CI Network' --path=/tmp/clir-wordpress
           wp plugin activate clir-widgets-bundle --network --path=/tmp/clir-wordpress
           composer test:multisite -- --path=/tmp/clir-wordpress
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: '!cancelled()'
         with:
           name: browser-results-php-${{ matrix.php }}
